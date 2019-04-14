@@ -1,6 +1,4 @@
 # impute_tool
 ## introduction
-impute_tool 是一款实现了在全基因组范围内对eQTL信息进行插补的开源软件。本软件借鉴了ImpG-master软件中利用SNPs之间连锁不平衡信息，
-用已知的eQTL统计量预测未知的eQTL统计量的方法，完成了对eQTL信息的插补。ImpG-master实现了在用户给定窗口内完成eQTL插补的功能，
-本软件在这个基础上，减轻了用户输入的复杂度，并且使用1000G文件自动补充需要插补位点的信息。在性能方面，使用了开启了多线程以及保留LD信息的方法，
-加快了插补速度。
+Impute_tool is an open source software that implements imputing eQTL information across the genome. The software borrows the method of using the known eQTL statistics to predict unknown eQTL statistics in the ImpG-master software by using the linkage disequilibrium information between SNPs, and completes the imputing of eQTL information. ImpG-master implements the function of completing eQTL imputing in a given window of the user.Based on this, the software reduces the complexity of user input and automatically supplements the information needed to impute the location using 1000G files. In terms of performance, the method of turning on multithreading and preserving LD information is used.
+Speed up the impution.
