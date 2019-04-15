@@ -238,8 +238,8 @@ size_t mark_snps(vector<typed_snp> &typed_snps,
 		// remember the typed snp idx
 		typed_snps[i].idx = idx;
 		
-		char ref = snp_ref_alt[j].ref_allele;
-		char alt = snp_ref_alt[j].alt_allele;
+		string ref = snp_ref_alt[j].ref_allele;
+		string alt = snp_ref_alt[j].alt_allele;
 		
 		// matched
 		if(ref == typed_snps[i].ref_allele 

@@ -20,8 +20,8 @@ typedef struct {
 	size_t idx;
 	string snp_name;
 	pos_t snp_pos;
-	char ref_allele;
-	char alt_allele;
+	string ref_allele;
+	string alt_allele;
 	double zscore;
 } typed_snp;
 
@@ -38,8 +38,8 @@ typedef struct {
 	size_t idx;
 	string snp_name;
 	pos_t snp_pos;
-	char ref_allele;
-	char alt_allele;
+	string ref_allele;
+	string alt_allele;
 } ref_snp;
 
 // from internal file

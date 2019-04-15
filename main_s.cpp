@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include <string>
 #include <fstream>
 #include <vector>
@@ -9,21 +10,28 @@
 #include <semaphore.h>
 #include <math.h>
 #include <zlib.h> 
+#include <list>
+#include <time.h>
+#include<sys/stat.h>
+#include<sys/types.h>
 #include "zgenbt.h"
 #include "impz.h"
 #include "util.h" 
 
 #define window_size 500000 
-#define batch 14
+
 #define GZ_BUF_SIZE 20000
 
 using namespace std;
+int batch =  35;
 int real_batch = 0;
+double rate = 0.1;
 
 struct thread_data{
    map<string,long long int>* p_VcfIndex;
    vector<string>* p_VcfFile;
    map<string,long long int*> *gene_pos_map;
+   int chrom; 
    string eqtl_path; 
    string ref_file;
    string out_dir;
@@ -66,12 +74,18 @@ bool gzLoadVcfFile(const char* gzfn , map<string,long long int>* p_VcfIndex ,vec
 	char buf[GZ_BUF_SIZE];
 
 	//erase head
-	for(int i = 0;i < 5;i++)
-	{
-		gzgets(gzfp , buf , GZ_BUF_SIZE);
-	}
-	
-	long long int index = 0;
+	gzgets(gzfp , buf , GZ_BUF_SIZE);
+    while(buf[0] == '#')
+    {
+        gzgets(gzfp , buf , GZ_BUF_SIZE);
+    }
+        
+    string line = string(buf);
+    string pos = read_pos(line);
+    (*p_VcfIndex)[pos] = 0;
+    (*p_VcfFile).push_back(line);
+    long long int index = 1;
+
 
 	while( gzgets(gzfp , buf , GZ_BUF_SIZE))
 	{
@@ -79,7 +93,7 @@ bool gzLoadVcfFile(const char* gzfn , map<string,long long int>* p_VcfIndex ,vec
 		string pos = read_pos(line);
 		if((*p_VcfIndex).count(pos) == 1)
 		{
-		//	"conflict information in vcf file!";
+		//	cout << "conflict information in vcf file!\n";
 		}
 		else
 		{
@@ -125,9 +139,10 @@ void init_line_list(string line_list[])
 	}
 }
 
-
+//extract info from given line
 void extract(long long int* pos,string* gene_name,string line)
 {
+	//read start pos
 	int index = 0;
 	while(line[index] != '\t')
 	{
@@ -148,7 +163,7 @@ void extract(long long int* pos,string* gene_name,string line)
 		index++;
 	} 
 	pos[0] = atoi(pos1.c_str());
-	
+	//read end pos
 	string pos2 = "";
 	while(line[index] != '\t')
 	{
@@ -160,7 +175,7 @@ void extract(long long int* pos,string* gene_name,string line)
 		index++;
 	}
 	pos[1] = atoi(pos2.c_str());
-	
+	//read gene name
 	while(line[index] != '\t')
 	{
 		(*gene_name) += line[index];
@@ -168,6 +183,7 @@ void extract(long long int* pos,string* gene_name,string line)
 	}
 }
 
+//record postions of all gene
 void load_gene_pos_map(string gene_annotation , map<string,long long int*> *gene_pos_map)
 {
 	ifstream fin(gene_annotation.c_str());
@@ -175,13 +191,15 @@ void load_gene_pos_map(string gene_annotation , map<string,long long int*> *gene
 	getline(fin,line);
 	while(line != "")
 	{
+		//pos0:start pos  pos1:end pos
 		long long int* pos = (long long int*)malloc(2 * sizeof(long long int));
 		string gene_name = "";
 		string* cur_gene_name = &gene_name;
+		//extract info from the line
 		extract(pos , cur_gene_name ,line);
+		//record it into map
 		(*gene_pos_map)[gene_name] = pos;
 		getline(fin,line);
-		
 	}
 	fin.close();
 }
@@ -220,7 +238,7 @@ void record_all(vector<snps> *p_origin_typed_snps , string info , string slope, 
 	
 }
 
-bool read_pos_name_alleles(string line , long long int* pos , string* name,char allele[2])
+bool read_pos_name_alleles(string line , long long int* pos , string* name,string allele[2])
 {
 	int index = 0;
 	while(line[index] != '\t')
@@ -245,8 +263,6 @@ bool read_pos_name_alleles(string line , long long int* pos , string* name,char 
 	}
 	(*pos) = atoi(str_pos.c_str());
 	
-	
-		
 	(*name) = "";
 	while(line[index] != '\t')
 	{
@@ -268,6 +284,7 @@ bool read_pos_name_alleles(string line , long long int* pos , string* name,char 
 	{
 		index++;
 	}
+	
 	string alt = "";
 	while(line[index] != '\t')
 	{
@@ -275,18 +292,13 @@ bool read_pos_name_alleles(string line , long long int* pos , string* name,char 
 		index++;
 	}
 	
-	if(ref.length() != 1 || alt.length() != 1)
-	{
-		return false;
-	}
-	
 	while(line[index] != '\t')
 	{
 		alt += line[index];
 		index;
 	}
-	allele[0] = ref.c_str()[0];
-	allele[1] = alt.c_str()[0];
+	allele[0] = ref;
+	allele[1] = alt;
 	
 	return true;
 }
@@ -323,29 +335,21 @@ void filter_snps(string file_name , string last_gene_name , vector<snps> *p_orig
 		}
 		else // map中存在信息 
 		{
-			if((*p_origin_typed_snps)[i].ref_allele.length() == 1 && 
-			(*p_origin_typed_snps)[i].alt_allele.length() == 1)
-			{ 	
 				char num[20];
 				sprintf(num , "%lld" ,(*p_origin_typed_snps)[i].snp_pos );
-/*				long long int position = (*pos_file_map)[string(num)];
-				fin.seekg(position);
-				string line;
-				getline(fin , line);
-*/
 				long long int v_index = (*p_VcfIndex)[num];
 				string line = (*p_VcfFile)[v_index];
 				
-				char allele[2];
+				string allele[2];
 				string name;
 				string *p_name = &name; 
 				long long int pos;
 				long long int *p_pos = &pos;
 				bool ans = read_pos_name_alleles(line , p_pos , p_name ,allele);				
-				if(ans && ( (allele[0] == (*p_origin_typed_snps)[i].ref_allele.c_str()[0]
-				&& allele[1] == (*p_origin_typed_snps)[i].alt_allele.c_str()[0])
-			||(allele[0] == (*p_origin_typed_snps)[i].alt_allele.c_str()[0]
-				&& allele[1] == (*p_origin_typed_snps)[i].ref_allele.c_str()[0]) ))
+				if(ans && ((allele[0] == (*p_origin_typed_snps)[i].ref_allele
+				&& allele[1] == (*p_origin_typed_snps)[i].alt_allele)
+			||(allele[0] == (*p_origin_typed_snps)[i].alt_allele
+				&& allele[1] == (*p_origin_typed_snps)[i].ref_allele )) )
 				
 				{
 					if(isnan((*p_origin_typed_snps)[i].zscore) == true)
@@ -372,20 +376,13 @@ void filter_snps(string file_name , string last_gene_name , vector<snps> *p_orig
 					(*p_ignore_snps).push_back((*p_origin_typed_snps)[i]);
 					//record it into ignore snps
 				}
-			}
-			else
-			{
-				counter1++;
-				(*p_ignore_snps).push_back((*p_origin_typed_snps)[i]);
-				//record it into ignore snps
-			}
 			
 		}
 
 	}//for
 	
 	fin.close();
-	return;				
+	return;					
 }
 
 void calculate_window(long long int window[2],string last_gene_name ,
@@ -406,10 +403,9 @@ void calculate_window(long long int window[2],string last_gene_name ,
 }
 
 void read_hap(string line,vector<string>* p_hap)
-{
-	int people = 300;
-	string tem_line;		
+{		
 	int index = 0;
+	int len = line.length();
 	for(int i = 0;i < 9;i++)
 	{
 		while(line[index] != '\t')
@@ -423,7 +419,7 @@ void read_hap(string line,vector<string>* p_hap)
 	}
 	
 	string hap_format = "";
-	for(int i = 0;i < people;i++)
+	while(index < len)
 	{
 		if(line[index] == '0')
 		{
@@ -435,17 +431,19 @@ void read_hap(string line,vector<string>* p_hap)
 		}
 		
 		index += 2;
+		if(index >= len)
+		{
+			break;
+		}
 		if(line[index] == '0')
 		{
 			hap_format += '1';
 		}
-		else
+		if(line[index] == '1')
 		{
 			hap_format += '2';
 		}
-		index += 2;
-		
-		
+		index += 2;		
 	}
 	(*p_hap).push_back(hap_format);
 }
@@ -474,14 +472,12 @@ void gen_map_hap(string ref_file , string last_gene_name ,  vector<ref_snp> *p_s
 	if(pos <= right)
 	{
 		long long int v_index = (*p_VcfIndex)[string(num)];
-//		fin.seekg((*pos_file_map)[num]);
 		string line = (*p_VcfFile)[v_index];
 		long long int pos1;
 		long long int *p_pos = &pos1;
 		string name1;
 		string *name = &name1;
-		char allele[2];	
-//		getline(fin , line);
+		string allele[2];	
 		bool right_snp = read_pos_name_alleles(line , p_pos , name, allele);
 		while((pos1 >= left) && (pos1 <= right))
 		{
@@ -508,7 +504,6 @@ void gen_map_hap(string ref_file , string last_gene_name ,  vector<ref_snp> *p_s
 
 				break;
 			}
-//			getline(fin , line);
 			if(line == "")
 			{
 
@@ -521,7 +516,7 @@ void gen_map_hap(string ref_file , string last_gene_name ,  vector<ref_snp> *p_s
 	fin.close();
 }
 
-void clean_all_vector(vector<snps> *p_origin_typed_snps , 
+void clean_all_vector(      vector<snps> *p_origin_typed_snps , 
 							vector<typed_snp> *p_typed_snps ,
 							vector<snps>*p_ignore_snps , 
 							vector<ref_snp>*p_snp_map,
@@ -540,6 +535,7 @@ void clean_all_vector(vector<snps> *p_origin_typed_snps ,
 void travel_eqtl(long long int start , long long int end ,
 			string eqtl_path ,vector<long long int>* p_batch_bonder)
 {
+	cout << "Dividing chrom into batches....\n";
 	ifstream fin(eqtl_path.c_str());
 	string line;
 	fin.seekg(start);
@@ -575,7 +571,6 @@ void travel_eqtl(long long int start , long long int end ,
 //	counter = 2397;
 	fin.close();
 	cout << "Tere are " << counter  << " gene on the chrom\n";
-	cout << "Dividing chrom into batches....\n";
 	///////////////////////////////////////////////////
 	
 	ifstream fin1(eqtl_path.c_str());
@@ -590,34 +585,7 @@ void travel_eqtl(long long int start , long long int end ,
 	}
 	
 	(*p_batch_bonder).push_back(start);
-	
-/*	(*p_batch_bonder).push_back(181655865);
-	(*p_batch_bonder).push_back(181655865);
-	
-	(*p_batch_bonder).push_back(340118484);
-	(*p_batch_bonder).push_back(340118484);
-	
-	(*p_batch_bonder).push_back(503749436);
-	(*p_batch_bonder).push_back(503749436);	
-	
-	(*p_batch_bonder).push_back(679319568);
-	(*p_batch_bonder).push_back(679319568);
-	
-	(*p_batch_bonder).push_back(804602729);
-	(*p_batch_bonder).push_back(804602729);
-	
-	(*p_batch_bonder).push_back(975388433);
-	(*p_batch_bonder).push_back(975388433);
-	
-	(*p_batch_bonder).push_back(1151416797);
-	(*p_batch_bonder).push_back(1151416797);
-	
-	(*p_batch_bonder).push_back(1357315388);
-	(*p_batch_bonder).push_back(1357315388);
-	
-	
-	(*p_batch_bonder).push_back(end);
-*/	
+		
 	fin1.seekg(start);
 	int gene_num = 1;
 	getline(fin1,line);
@@ -634,7 +602,7 @@ void travel_eqtl(long long int start , long long int end ,
 		{
 			pos = fin1.tellg();
 			(*p_batch_bonder).push_back(pos);
-			cout << "last " << pos << endl;
+			//cout << "last " << pos << endl;
 			break;
 		}
 		
@@ -656,7 +624,7 @@ void travel_eqtl(long long int start , long long int end ,
 			    b++;
 				(*p_batch_bonder).push_back(position);
 				(*p_batch_bonder).push_back(position);
-				cout << "batch" << b << " end at "<< position<<"(file pos)" << endl;
+				//cout << "batch" << b << " end at "<< position<<"(file pos)" << endl;
 				
 				
 			}
@@ -688,6 +656,10 @@ int get_chrom(string line)
 
 void split_chrom(string eqtl_path ,long long int chrom[])
 {
+	for(int i = 0;i <= 22;i++)
+	{
+		chrom[i] = 0;
+	}
 	cout << "Dividing eqtl file into several chroms.....\n" ;
 	ifstream fin(eqtl_path.c_str());
 	string line;
@@ -697,15 +669,15 @@ void split_chrom(string eqtl_path ,long long int chrom[])
 /*	chrom[1] = 1359280869;
 	chrom[2] = 2302908974;
 */	int current_chrom = 1;
-	long long int pos;
-	while(current_chrom <= 2)
+	long long int pos = 0;
+	while(current_chrom <= 22)
 	{
 		pos = fin.tellg();
 		getline(fin , line);
 		if(line == "")
 		{
 			chrom[current_chrom] = pos;
-			cout << "chrom" << current_chrom << " end at " << pos <<"(file pos)" << endl;
+			//cout << "chrom" << current_chrom << " end at " << last_pos <<"(file pos)" << endl;
 			break;
 		}
 		int now_chrom = get_chrom(line);
@@ -716,7 +688,7 @@ void split_chrom(string eqtl_path ,long long int chrom[])
 		else
 		{
 			chrom[current_chrom] = pos;
-			cout << "chrom" << current_chrom << " end at " << pos <<"(file pos)" << endl;
+	//		cout << "chrom" << current_chrom << " end at " << pos <<"(file pos)" << endl;
 			current_chrom++;	
 		} 
 	}
@@ -727,7 +699,6 @@ void *main_process(void *threadarg)
 {
 		struct thread_data *my_data;
 		my_data = (struct thread_data *) threadarg;
-//		map<string,long long int> *pos_file_map = my_data -> pos_file_map;
    		map<string,long long int>* p_VcfIndex = my_data -> p_VcfIndex;
    		vector<string>* p_VcfFile = my_data -> p_VcfFile;
    		map<string,long long int*> *gene_pos_map = my_data -> gene_pos_map;
@@ -737,6 +708,7 @@ void *main_process(void *threadarg)
    		string out_dir = my_data -> out_dir;
    		long long int start = my_data -> start; 
    		long long int end = my_data -> end;
+   		int chrom = my_data -> chrom;
 		
 		ifstream fin(eqtl_path.c_str());
 		fin.seekg(start);
@@ -761,7 +733,13 @@ void *main_process(void *threadarg)
 		string last_gene_name;
 		//record the gene
 	
+		map<long long int , int> m_all_snps ;
+		map<long long int , int> m_typed_snps ;
+		map<long long int , int> *p_m_all_snps = &m_all_snps;
+		map<long long int , int> *p_m_typed_snps = &m_typed_snps;
+		double** last_sigma_it = NULL;
 		ans values;
+		values.last_sigma_it = NULL;
 		values.weight = NULL;
 		int flag = 0;
 		while(fin.tellg() <= end)
@@ -781,6 +759,7 @@ void *main_process(void *threadarg)
 			//calculate window
 				long long int window[2]; 
 				calculate_window(window , last_gene_name , gene_pos_map);
+			
 			// 1.split origin_typed_snps into typed_snps
 			//and unuseful snps(wrong and special type)
 				filter_snps(ref_file , last_gene_name,p_origin_typed_snps ,
@@ -788,7 +767,7 @@ void *main_process(void *threadarg)
 			//2.search gene annotation map and pos file dict to generate 
 			//.map and .hap vector with .vcf
 				gen_map_hap(ref_file , last_gene_name , p_snp_map , p_hap , window,p_VcfIndex,p_VcfFile);
-			//3.impute process
+			//3.impute process		
 				size_t num_typed_snps = typed_snps.size();
 				size_t num_total_snps = snp_map.size();
 				vector<char> convert_flags;
@@ -807,15 +786,17 @@ void *main_process(void *threadarg)
 				vector<long long int> useful_typed_snps;
 				vector<long long int>* p_useful_typed_snps = &useful_typed_snps;
 				vector<int> snps_flag;
-				vector<int>* p_snps_flag = &snps_flag;
+				vector<int>* p_snps_flag = &snps_flag;	
 				values = zgenbt(p_snps_flag ,typed_snps, snp_map , convert_flags , impute_flags , 
-											hap , p_useful_typed_snps);
-				impz(out_dir , last_gene_name , p_snps_flag , values.weight ,typed_snps, snp_map , impute_flags ,p_useful_typed_snps );
+											hap , p_useful_typed_snps,
+				p_m_all_snps,p_m_typed_snps,values.last_sigma_it);
+
+				impz(chrom , out_dir , last_gene_name , p_snps_flag , values.weight ,typed_snps, snp_map , impute_flags ,p_useful_typed_snps );	
 				//final.start new recorder and record gene_name snp
 				clean_all_vector(p_origin_typed_snps , p_typed_snps ,
 								p_ignore_snps , p_snp_map , p_hap ,p_useful_typed_snps);
 				
-				cout << last_gene_name << " recorded" << endl;
+//				cout << last_gene_name << " recorded" << endl;
 				if(1 == flag)
 				{
 					break;
@@ -824,50 +805,95 @@ void *main_process(void *threadarg)
 			} 
 			else
 			{
-		record_all(p_origin_typed_snps , line_list[1] , line_list[7] , line_list[8]);
+				record_all(p_origin_typed_snps , line_list[1] , line_list[7] , line_list[8]);
 		
 				//record it into origin_typed_snps
 			}
 		} 
-		
+		fin.close();
 		sem_post(my_data -> bin_sem); //信号量+1
 
 }
 
-int main() 
+void make_output_dir(char *Out)
 {
+	string path = string(Out);
+	char tem[10];
+	for(int i = 1;i <= 22;i++)
+	{
+		string new_path = path;
+		sprintf(tem , "%d" , i);
+		string new_path1 = (new_path += string(tem));
+		mkdir(new_path1.c_str() , 0777);	
+	}
+	
+}
+
+int main(int argc , char *argv[]) 
+{
+	char opt;
+	char* Gene_annotation;
+	char* Eqtl_path;
+	char* Vcf_prefix;
+	char* Out;
+	char* BATCH;
+	while((opt = getopt(argc,argv,"g:e:v:o:t:")) != -1) 
+	{
+		switch(opt) 
+		{
+			case 'g': // prefix used in gen_beta
+				Gene_annotation = (char *) strdup(optarg);
+				break;
+			case 'e': // snp mapping file
+				Eqtl_path = (char *) strdup(optarg);
+				break;
+			case 'v': // typed snp file
+				Vcf_prefix = (char *) strdup(optarg);
+				break;
+			case 'o': // output file name
+				Out = (char *) strdup(optarg);
+				break;
+			case 't':
+				BATCH = (char*)strdup(optarg);
+				break;		
+		}
+	}
+	
+	string gene_annotation = string(Gene_annotation);
+//	string gene_annotation = "/media/userdisk1/jjpeng/yinquanwei/gencode_v19_gene_annotation.txt";
+	string eqtl_path = string(Eqtl_path);
+//	string eqtl_path = "/media/userdisk1/jjpeng/yinquanwei/Brain_Amygdala.allpairs.txt";
+	string vcf_prefix = string(Vcf_prefix);
+//	string vcf_prefix = "/media/userdisk1/jjpeng/yinquanwei/";
+	string out = string(Out);
+//	string out = "/media/userdisk1/jjpeng/yinquanwei/output/";
+	batch = atoi(BATCH);
+	make_output_dir(Out);
+
 	//load gene_pos_map
 	map<string,long long int*> pos1;
 	map<string,long long int*> *gene_pos_map = &pos1;
-	cout << "input the path of gene annotation file:\n";
-	string gene_annotation = "/media/userdisk1/jjpeng/yinquanwei/gencode_v19_gene_annotation.txt";
-	//cin >> gene_annotation; 
-	cout << "input the path of eqtl_file:\n";
-	string eqtl_path = "/media/userdisk1/jjpeng/yinquanwei/Brain_Amygdala.allpairs.txt";
-//	cin >> eqtl_path;
-	cout << "input the dir of vcf files:\n";
-	string vcf_prefix = "/media/userdisk1/jjpeng/yinquanwei/";
-//	cin >> vcf_prefix;
-	cout << "input the output dir:\n";
-	string out = "/media/userdisk1/jjpeng/yinquanwei/output/";
-//	cin >> out;
-	printf("reading gene annotation file.....\n"); 
+	printf("Reading gene annotation file......\n"); 
 	load_gene_pos_map(gene_annotation , gene_pos_map);
-	cout << "gene pos map loaded" << endl;		
+	cout << "Gene pos information loaded" << endl;		
 		
 	//seperate chrom
-	
 	long long int chrom[24];
 	split_chrom(eqtl_path , chrom);
 		
 
-	for(int i = 1;i <= 2;i++)
+	for(int i = 1;i <= 22;i++)
 	{
 		long long int start = chrom[i - 1];
 		long long int end = chrom[i];
+		
+		if(start == 0 || end == 0)
+		{
+			continue;
+		}
 			
-		//load vcf_file
-		printf("reading vcf file of NO %d chrom , it will take few mins\n",i);
+		//load pos_file_map
+		printf("reading vcf file of NO %d chrom......\n",i);
 		map<string,long long int> VcfIndex;
 		map<string,long long int>* p_VcfIndex = &VcfIndex;
 		vector<string> VcfFile;
@@ -875,9 +901,8 @@ int main()
 		
 		char tem[3];
 		sprintf(tem , "%d" , i);
-		string ref_file = vcf_prefix + "chr" + string(tem) + ".1kg.phase3.v5a.vcf.gz";
+		string ref_file = vcf_prefix + "EUR.MAF01.Biallele.chr" + string(tem) + ".PASS_only.vcf.gz";
 		gzLoadVcfFile(ref_file.c_str() ,p_VcfIndex ,p_VcfFile );
-//		load_pos_map(ref_file , pos_file_map);
 		cout << "VcfFile loaded" << endl;
 				
 		
@@ -889,31 +914,32 @@ int main()
 				
 		///////////////////////////////////////// 
 		
-		sem_t  bin_sem;    //设置信号量，下面初始化这个信号量
-		int res = sem_init(&bin_sem, 0, 0);
+		sem_t  bin_sem;    //set Semaphore
+		int res = sem_init(&bin_sem, 0, 0);//init Semaphore
 		if (res != 0)
-    		{
-        			perror("Semaphore initialization failed");
-    		}
+    	{
+        	perror("Semaphore initialization failed");
+    	}
 		
 		pthread_t tids[real_batch];
 		struct thread_data td[real_batch];
 
-
-		for(int i = 0;i < real_batch;i++)
+		int chrom = i;
+		printf("Imputing the %dst chrom......\n",chrom);
+		for(int ii = 0;ii < real_batch;ii++)
 		{
-			td[i].bin_sem = &bin_sem; 
-			td[i].gene_pos_map = gene_pos_map;
-			td[i].p_VcfIndex =  p_VcfIndex;
-			td[i].p_VcfFile =  p_VcfFile;
-//			td[i].pos_file_map = pos_file_map;
-			td[i].eqtl_path = eqtl_path;
-			td[i].ref_file = ref_file;
-			td[i].start = batch_bonder[2 * i];
-			td[i].end = batch_bonder[2 * i + 1];
-			td[i].out_dir = out;
+			td[ii].bin_sem = &bin_sem; 
+			td[ii].gene_pos_map = gene_pos_map;
+			td[ii].p_VcfIndex =  p_VcfIndex;
+			td[ii].p_VcfFile =  p_VcfFile;
+			td[ii].eqtl_path = eqtl_path;
+			td[ii].ref_file = ref_file;
+			td[ii].start = batch_bonder[2 * ii];
+			td[ii].end = batch_bonder[2 * ii + 1];
+			td[ii].out_dir = out;
+			td[ii].chrom = chrom;
 
-			int ret = pthread_create(&tids[i], NULL, main_process, (void *)&td[i]);
+			int ret = pthread_create(&tids[ii], NULL, main_process, (void *)&td[ii]);
 			if (ret != 0)
         	{
            		cout << "pthread_create error: error_code=" << ret << endl;
@@ -925,10 +951,9 @@ int main()
         	sem_wait(&bin_sem);    //循环等待次，相当于个线程都执行完了
     	}
     	sem_destroy(&bin_sem);        //释放信号量
-		cout << "impute the next chom\n";
+		printf("the %dst chrom finished\n",chrom);
 	}
 	cout << "finish imputation\n";
-//	getchar();
 	
 	return 0;
 }
