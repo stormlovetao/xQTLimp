@@ -1,32 +1,64 @@
-# xQTLimp
+# xQTLImp
 ## introduction
- xQTLimp is an open source software that implements imputing eQTL information across the genome. The software borrows the method of using the known eQTL statistics to predict unknown eQTL statistics in the ImpG-master software by using the linkage disequilibrium information between SNPs, and completes the imputing of eQTL information. ImpG-master implements the function of completing eQTL imputing in a given window of the user.Based on this, the software reduces the complexity of user input and automatically supplements the information needed to impute the location using 1000G files. In terms of performance, the method of turning on multithreading and preserving LD information is used.
-Speed up the impution.
-##  Building Impute_tool
+ xQTLImp is an open source software that implements imputing xQTL(eQTL,mQTL,haQTL) information across the genome. xQTLImp borrows the functions of ImpG-master in its implementation. [ImpG-summary](https://github.com/huwenboshi/ImpG) implements impute function from a window given by user, and needs to provide files containing all snps information and typed snps zscore in the window . Based on this, the software reduces the complexity of user input and automatically supplements the information needed to impute the location using 1000G files. In terms of performance, the method of turning on multithreading and preserving LD information is used to speed up the impution. xQTLImp is suitable for handling more general cases. The tool extends the type of processing to Snps type and Indel type and supports x molecular features, such as gene/transcript/exon expression level, DNA methylation, histone acylation…
+ </br>
+##  Building xQTLImp
  To read gz format, you need zlib.
 ```bash
 sudo apt-get install zlib1g-dev
 ```
 Any C++11 compiler should work.
 ```bash
-make #under impute_tool dir
+make #under src folder
 ```
 ## Usage
 ### Requirements for input files
-Three input files are required:
-#### 1.1000G files in gz format 
-The 1000g files should be named like chrom[1-22].vcf.gz
-#### 2.gene annotation file
-#### 3.eQTL file
-
+There input files are required:
+#### 1.1000G files in vcf format 
+[Available download address](http://bochet.gcc.biostat.washington.edu/beagle/1000_Genomes_phase3_v5a/b37.vcf/)</br>
+The 1000G files should be compressed into gz format</br>
+The 1000G files should be named like chrom[1-22].vcf.gz in a folder</br>
+</br>
+#### 2.Molecular trait file
+Molecular trait file must start with a line that contains column labels – molecular_ID, start_pos, end_pos ...(option) </br>followed by lines of data entries. Each field of data entries must be separated by white spaces.</br>
+##### Example:
+`molecular_ID` `start_pos` `end_pos`</br>
+ENSG00000223972.4	11869	14412</br>
+ENSG00000227232.4	14363	29806</br>
+ENSG00000243485.2	29554	31109</br>
+ENSG00000237613.2	34554	36081</br>
+......</br>
+</br>
+#### 3.xQTL file
+xQTL file must start with a line that contains column labels – chromosome , molecular_ID, variant_pos , Ref_allele , Alt_allele , z_statistics ...(option)</br> followed by lines of data entries. Each field of data entries must be separated by white spaces.</br>
+##### Example:
+`chromosome` `molecular_ID` `variant_pos` `Ref_allele`  `Alt_allele` `z_statistics`</br>
+1 ENSG00000223972.4 13417 G C 1.5</br>
+1 ENSG00000227232.4 17559 A G 2.6</br>
+1 ENSG00000227232.4 54421 G A -1.0</br>
+......</br>
+</br>
 ### Parameter Description：
--g : the path of Gene_annotation file</br>
--e : the path of Eqtl file</br>
--v : the 100G files dir</br>
--o : the output dir</br>
+-m : the path of Molecular trait file</br>
+-x : the path of xQTL file</br>
+-v : the 1000G files folder</br>
+-o : the output folder</br>
 -t : the num of threads</br>
-
-eg:./Project_gene -g /media/userdisk1/jjpeng/yinquanwei/gencode_v19_gene_annotation.txt -e /media/userdisk1/jjpeng/yinquanwei/Brain_Amygdala.allpairs.txt -v /media/userdisk1/jjpeng/yinquanwei/ -o /media/userdisk1/jjpeng/yinquanwei/output3/ -t 55
-
-There is a demon in sample dir.
-
+</br>
+### demon
+There is a demon in sample folder.
+#### step1: make under src folder
+#### step2: create a new folder for output
+#### step3: Execute the command line under src folder
+```bash
+./xQTLImp -m /sample/gencode_v19_gene_annotation.txt -x /sample/Brain_Amygdala.allpairs.txt -v /sample/ -o (your output folder) -t 6
+```
+### the output file format
+22 subfolders will appear in the output folder,and each folder corresponds to the imputing result on the chromosome.</br>
+A file corresponds to the impute result of a gene</br>
+#### Example:
+`SNP_name` `SNP_pos` `Ref_Allele` `Alt_Allele` `Z-Score` `r2pred`</br>
+rs142006308 31757791 G A 0.328344 1.000000</br>
+rs71563368 31758240 G A 0.335234 1.000000</br>
+rs6899983 31758931 A C 0.279963 1.000000</br>
+......</br>
