@@ -22,19 +22,21 @@ The 1000G files should be named like chrom[1-22].vcf.gz in a folder</br>
 #### 2.Molecular trait file
 Molecular trait file must start with a line that contains column labels – molecular_ID, start_pos, end_pos ...(option) </br>followed by lines of data entries. Each field of data entries must be separated by white spaces.</br>
 ##### Example:
-molecular_ID start_pos end_pos</br>
+`molecular_ID` `start_pos` `end_pos`</br>
 ENSG00000223972.4	11869	14412</br>
 ENSG00000227232.4	14363	29806</br>
 ENSG00000243485.2	29554	31109</br>
 ENSG00000237613.2	34554	36081</br>
+......</br>
 </br>
 #### 3.xQTL file
 xQTL file must start with a line that contains column labels – chromosome , molecular_ID, variant_pos , Ref_allele , Alt_allele , z_statistics ...(option)</br> followed by lines of data entries. Each field of data entries must be separated by white spaces.</br>
 ##### Example:
-chromosome molecular_ID variant_pos Ref_allele  Alt_allele z_statistics</br>
+`chromosome` `molecular_ID` `variant_pos` `Ref_allele`  `Alt_allele` `z_statistics`</br>
 1 ENSG00000223972.4 13417 G C 1.5</br>
 1 ENSG00000227232.4 17559 A G 2.6</br>
 1 ENSG00000227232.4 54421 G A -1.0</br>
+......</br>
 </br>
 ### Parameter Description：
 -m : the path of Molecular trait file</br>
@@ -51,4 +53,12 @@ There is a demon in sample folder.
 ```bash
 ./xQTLImp -m /sample/gencode_v19_gene_annotation.txt -x /sample/Brain_Amygdala.allpairs.txt -v /sample/ -o (your output folder) -t 6
 ```
-22 subfolders will appear in the output folder,and each folder corresponds to the imputing result on the chromosome.
+### the output file format
+22 subfolders will appear in the output folder,and each folder corresponds to the imputing result on the chromosome.</br>
+A file corresponds to the impute result of a gene</br>
+#### Example:
+`SNP_name` `SNP_pos` `Ref_Allele` `Alt_Allele` `Z-Score` `r2pred`</br>
+rs142006308 31757791 G A 0.328344 1.000000</br>
+rs71563368 31758240 G A 0.335234 1.000000</br>
+rs6899983 31758931 A C 0.279963 1.000000</br>
+......</br>
