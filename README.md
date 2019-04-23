@@ -1,7 +1,7 @@
 # xQTLImp
 ## introduction
- xQTLImp is an open source software that implements imputing eQTL information across the genome. The software borrows the method of using the known eQTL statistics to predict unknown eQTL statistics in the ImpG-master software by using the linkage disequilibrium information between SNPs, and completes the imputing of eQTL information. ImpG-master implements the function of completing eQTL imputing in a given window of the user.Based on this, the software reduces the complexity of user input and automatically supplements the information needed to impute the location using 1000G files. In terms of performance, the method of turning on multithreading and preserving LD information is used.
-Speed up the impution.
+ xQTLImp is an open source software that implements imputing xQTL(eQTL,mQTL,haQTL) information across the genome. xQTLImp borrows the functions of ImpG-master in its implementation. ImpG-master implements impute function from a window given by user, and needs to provide files containing all snps information and typed snps zscore in the window . Based on this, the software reduces the complexity of user input and automatically supplements the information needed to impute the location using 1000G files. In terms of performance, the method of turning on multithreading and preserving LD information is used to speed up the impution. xQTLImp is suitable for handling more general cases. The tool extends the type of processing to Snps type and Indel type and supports x molecular features, such as gene/transcript/exon expression level, DNA methylation, histone acylation…
+ </br>
 ##  Building xQTLImp
  To read gz format, you need zlib.
 ```bash
@@ -49,6 +49,6 @@ There is a demon in sample folder.
 #### step2: create a new folder for output
 #### step3: Execute the command line under src folder
 ```bash
-/xQTLImp -m /sample/gencode_v19_gene_annotation.txt -x /sample/Brain_Amygdala.allpairs.txt -v /sample/ -o (your output folder) -t 6
+./xQTLImp -m /sample/gencode_v19_gene_annotation.txt -x /sample/Brain_Amygdala.allpairs.txt -v /sample/ -o (your output folder) -t 6
 ```
 22 subfolders will appear in the output folder,and each folder corresponds to the imputing result on the chromosome.
