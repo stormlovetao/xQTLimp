@@ -36,15 +36,19 @@ chromosome molecular_ID variant_pos Ref_allele  Alt_allele z_statistics</br>
 1 ENSG00000227232.4 17559 A G 2.6</br>
 1 ENSG00000227232.4 54421 G A -1.0</br>
 </br>
-
 ### Parameter Description：
 -m : the path of Molecular trait file</br>
 -x : the path of xQTL file</br>
 -v : the 1000G files folder</br>
 -o : the output folder</br>
 -t : the num of threads</br>
-eg:./xQTLImp -g /media/userdisk1/jjpeng/yinquanwei/gencode_v19_gene_annotation.txt -e /media/userdisk1/jjpeng/yinquanwei/Brain_Amygdala.allpairs.txt -v /media/userdisk1/jjpeng/yinquanwei/ -o /media/userdisk1/jjpeng/yinquanwei/output3/ -t 55
-
-###demon
+</br>
+### demon
 There is a demon in sample folder.
-
+#### step1: make under src folder
+#### step2: create a new folder for output
+#### step3: Execute the command line under src folder
+```bash
+/xQTLImp -m /sample/gencode_v19_gene_annotation.txt -x /sample/Brain_Amygdala.allpairs.txt -v /sample/ -o (your output folder) -t 6
+```
+22 subfolders will appear in the output folder,and each folder corresponds to the imputing result on the chromosome.
