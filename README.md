@@ -13,30 +13,38 @@ make #under src folder
 ```
 ## Usage
 ### Requirements for input files
-Three input files are required:
+There input files are required:
 #### 1.1000G files in vcf format 
 [Available download address](http://bochet.gcc.biostat.washington.edu/beagle/1000_Genomes_phase3_v5a/b37.vcf/)</br>
 The 1000G files should be compressed into gz format</br>
 The 1000G files should be named like chrom[1-22].vcf.gz in a folder</br>
+</br>
 #### 2.Molecular trait file
-Molecular trait file must start with a line that contains column labels – molecular_ID, start_pos, end_pos ...(option) followed by lines of data entries. Each field of data entries must be separated by white spaces.</br>
+Molecular trait file must start with a line that contains column labels – molecular_ID, start_pos, end_pos ...(option) </br>followed by lines of data entries. Each field of data entries must be separated by white spaces.</br>
 ##### Example:
-molecular_ID, start_pos, end_pos</br>
+molecular_ID start_pos end_pos</br>
 ENSG00000223972.4	11869	14412</br>
 ENSG00000227232.4	14363	29806</br>
 ENSG00000243485.2	29554	31109</br>
 ENSG00000237613.2	34554	36081</br>
-
-#### 3.eQTL file
+</br>
+#### 3.xQTL file
+xQTL file must start with a line that contains column labels – chromosome , molecular_ID, variant_pos , Ref_allele , Alt_allele , z_statistics ...(option)</br> followed by lines of data entries. Each field of data entries must be separated by white spaces.</br>
+##### Example:
+chromosome molecular_ID variant_pos Ref_allele  Alt_allele z_statistics</br>
+1 ENSG00000223972.4 13417 G C 1.5</br>
+1 ENSG00000227232.4 17559 A G 2.6</br>
+1 ENSG00000227232.4 54421 G A -1.0</br>
+</br>
 
 ### Parameter Description：
--g : the path of Gene_annotation file</br>
--e : the path of Eqtl file</br>
--v : the 100G files dir</br>
--o : the output dir</br>
+-m : the path of Molecular trait file</br>
+-x : the path of xQTL file</br>
+-v : the 1000G files folder</br>
+-o : the output folder</br>
 -t : the num of threads</br>
-
 eg:./xQTLImp -g /media/userdisk1/jjpeng/yinquanwei/gencode_v19_gene_annotation.txt -e /media/userdisk1/jjpeng/yinquanwei/Brain_Amygdala.allpairs.txt -v /media/userdisk1/jjpeng/yinquanwei/ -o /media/userdisk1/jjpeng/yinquanwei/output3/ -t 55
 
+###demon
 There is a demon in sample folder.
 
