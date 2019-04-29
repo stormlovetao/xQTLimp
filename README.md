@@ -1,23 +1,29 @@
 # xQTLImp
 ## introduction
- xQTLImp is an open source software that implements imputing xQTL(eQTL,mQTL,haQTL) information across the genome. xQTLImp borrows the functions of ImpG-master in its implementation. [ImpG-summary](https://github.com/huwenboshi/ImpG) implements impute function from a window given by user, and needs to provide files containing all snps information and typed snps zscore in the window . Based on this, the software reduces the complexity of user input and automatically supplements the information needed to impute the location using 1000G files. In terms of performance, the method of turning on multithreading and preserving LD information is used to speed up the impution. xQTLImp is suitable for handling more general cases. The tool extends the type of processing to Snps type and Indel type and supports x molecular features, such as gene/transcript/exon expression level, DNA methylation, histone acylation…
- </br>
+xQTLImp is an open source software that implements xQTL(such as eQTL, mQTL, haQTL et. al) statistics (i.e Z statistics) imputation across the genome. xQTLImp accepts xQTL summary statistics without the need of individual-level genotypes and molecular features, and could accurately impute novel xQTL associations based on genetic reference panel. The imputation process is performed by modeling variants, within same LD and associated with a certain molecular trait, by using multivariate normal distribution. Novel QTL statistics of variants associated with a molecular trait, say gene *G's* expression level, will be calculated as a weighted linear combination of known statistics of variants associated with G, with the weights reflecting LD relationships (i.e. LD r^2) among those variants (See Methods of Paper). Genetic reference panel such as 1000G, HapMap or user-provided refrence panel in gzipped VCF format is required for LD calculations.
+
+In general, xQTLImp can handle any kinds of molecular traits (not limited to gene expression, DNA methylation or histone acetylation) that can be physically mapped onto genomic regions, without limitation in species. Genomic variants such as SNV and small Indel(Insertion/deletion) are both supported. And xQTLImp can be applied in multiple scenarios, such as in performing meta-analysis of multiple eQTL studies which have reported different, but correlated sets of variants. 
+
+xQTLImp is implemented in C++ and released under GNU GPL license. The source code and sample data are freely available for download at current webpage, and can be run on Linux/Unix/windows with C++ environment. To get better performance, xQTLImp can be executed in parallel mode, during which each chromosome will be broken into *N* chunks (*N* = number of threads) with each chunk has similar number of molecules. And on average, xQTLImp will need 8Gb memory to execute, which is easy to be distributed on PC and server.
+</br>
+
 ##  Building xQTLImp
- To read gz format, you need zlib.
+ To read gzipped VCF files, **zlib** package is required, and to install:
 ```bash
 sudo apt-get install zlib1g-dev
 ```
-Any C++11 compiler should work.
+Then compiling:
 ```bash
-make #under src folder
+cd ./src/
+make #Any C++11 compiler should work.
 ```
 ## Usage
-### Requirements for input files
-There input files are required:
-#### 1.1000G files in vcf format 
-[Available download address](http://bochet.gcc.biostat.washington.edu/beagle/1000_Genomes_phase3_v5a/b37.vcf/)</br>
-The 1000G files should be compressed into gz format</br>
-The 1000G files should be named like chrom[1-22].vcf.gz in a folder</br>
+### Requirements for input files.
+The following files and format are required as input:
+#### 1. Genome reference panel in gzipped VCF format. 
+For example, the 1000G human genome reference panel [(Available here)](http://bochet.gcc.biostat.washington.edu/beagle/1000_Genomes_phase3_v5a/b37.vcf/), or HapMap3 reference panel [(Available here)](https://www.sanger.ac.uk/resources/downloads/human/hapmap3.html).</br>
+
+The genotype VCF files should be separated by chromosomes, and named in the format of 'chr.*N*.XXX.vcf.gz' within a folder. *N* represents for chromosome number, i.e. 1~26 (X->23, Y->24, XY (Pseudo-autosomal region of X) ->25, MT (Mitochondrial) ->26); XXX represents for any user defined string. Other domain should be freezed in required format.  </br>
 </br>
 #### 2.Molecular trait file
 Molecular trait file must start with a line that contains column labels – molecular_ID, start_pos, end_pos ...(option) </br>followed by lines of data entries. Each field of data entries must be separated by white spaces.</br>
@@ -62,3 +68,13 @@ rs142006308 31757791 G A 0.328344 1.000000</br>
 rs71563368 31758240 G A 0.335234 1.000000</br>
 rs6899983 31758931 A C 0.279963 1.000000</br>
 ......</br>
+
+## Reference
+During the implementation of xQTLImp, we referenced the work of:
+* Pasaniuc, B. et al., 2014. Fast and accurate imputation of summary statistics enhances evidence of functional enrichment. Bioinformatics, 30(20), pp.2906–2914.
+* Kwan, J.S.H. et al., 2016. FAPI: Fast and Accurate P-value Imputation for genome-wide association study. European Journal of Human Genetics, 24(5), p.761.
+* Han, B., Kang, H.M. & Eskin, E., 2009. Rapid and accurate multiple testing correction and power estimation for millions of correlated markers. PLoS genetics, 5(4), p.e1000456.
+
+
+
+
