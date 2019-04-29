@@ -98,15 +98,15 @@ mkdir sample_output    # creat a new folder for output
 -o ./sample_output/                            \
 -t 2
 ```
-### the output file format
-22 subfolders will appear in the output folder,and each folder corresponds to the imputing result on the chromosome.</br>
-A file corresponds to the impute result of a gene</br>
+### xQTLImp output file format
+*N* subfolders will be created in the output folder, and each folder contains the imputation results on each chromosome (*N* = number of chromosomes).</br> Imputation results associated with each molecule are seperately saved under each chromosome subfolder (for parallele mode consideration), and user can run the script ./scripts/merge.py to merge them into one union file for each chromosome.</br>
 #### Example:
-`SNP_name` `SNP_pos` `Ref_Allele` `Alt_Allele` `Z-Score` `r2pred`</br>
-rs142006308 31757791 G A 0.328344 1.000000</br>
-rs71563368 31758240 G A 0.335234 1.000000</br>
-rs6899983 31758931 A C 0.279963 1.000000</br>
-......</br>
+`SNP_name` | `SNP_pos` | `Ref_Allele` | `Alt_Allele` | `Z-Score` | `r2pred`
+--|--|--|--|--|--
+rs142006308 | 31757791 | G | A | 0.328344 | 0.98
+rs71563368 |  31758240 | G | A | 0.335234 | 1.00
+rs6899983  | 31758931  | A | C | 0.279963 | 0.89
+......
 
 ## Reference
 During the implementation of xQTLImp, we referenced the work of:
