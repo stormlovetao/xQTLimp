@@ -38,10 +38,10 @@ The genotype reference VCF files should be separated by chromosomes, and named i
 
 ```bash
 for chr in {1..22} ; do
-vcftools --gzvcf $prefix$chr$suffix 
---maf 0.01                           # keep common variants with MAF > 0.01
---min-alleles 2 --max-alleles 2      # keep biallelic variants
---keep $EUR_file                     # keep EUR population samples, not provided.
+vcftools --gzvcf $prefix$chr$suffix \
+--maf 0.01                          \ # keep common variants with MAF > 0.01
+--min-alleles 2 --max-alleles 2     \ # keep biallelic variants
+--keep $EUR_file                    \ # keep EUR population samples, not provided.
 --remove-filtered-all --recode --stdout | gzip -c > $out_prefix$chr$out_suffix;
 done
 ```
@@ -56,24 +56,31 @@ ENSG00000223972.4	| 11869 |	14412
 ENSG00000227232.4	| 14363	| 29806
 ENSG00000243485.2	| 29554	| 31109
 ENSG00000237613.2	| 34554	| 36081
+......</br>
 
-......</br>
-</br>
-#### 3.xQTL file
-xQTL file must start with a line that contains column labels – chromosome , molecular_ID, variant_pos , Ref_allele , Alt_allele , z_statistics ...(option)</br> followed by lines of data entries. Each field of data entries must be separated by white spaces.</br>
+
+#### 3. xQTL summary statistics
+This file gives summary statistics associated with pairs of variants and molecular traits. The xQTL file should start with a line that contains column names – chromosome , molecular_ID, variant_pos , ref_allele , alt_allele , z_statistics ...(optional columns),followed by lines of data entries. Each field of data entries must be separated by white spaces. </br>
+*Note:* xQTLImp only handle cis-xQTL associations, so variant and molecule should be on the some chromosome. </br>
 ##### Example:
-`chromosome` `molecular_ID` `variant_pos` `Ref_allele`  `Alt_allele` `z_statistics`</br>
-1 ENSG00000223972.4 13417 G C 1.5</br>
-1 ENSG00000227232.4 17559 A G 2.6</br>
-1 ENSG00000227232.4 54421 G A -1.0</br>
+`chromosome` | `molecular_ID` | `variant_pos` | `ref_allele` | `alt_allele` | `z_statistics`
+--|--|--|--|--|--
+1 | ENSG00000223972.4 | 13417 | G | C | 1.5</br>
+1 | ENSG00000227232.4 | 17559 | A | G | 2.6</br>
+1 | ENSG00000227232.4 | 54421 | G | A | -1.0</br>
 ......</br>
-</br>
-### Parameter Description：
--m : the path of Molecular trait file</br>
--x : the path of xQTL file</br>
--v : the 1000G files folder</br>
--o : the output folder</br>
--t : the num of threads</br>
+
+
+### xQTLImp parameters：
+```bash
+xQTLImp
+-x file_path      # string, the file path of xQTL summary statistics.
+-m file_path      # string, the file path of molecule annotation file.
+-v folder_path    # string, the folder path of genome reference panel, such as 1000G VCF files.
+-o folder_path    # string, the folder path of output results. 
+-t num_threads    # int, number of threads, 1 in default.
+-maf MAF_cutoff   # double, the cutoff of minor allele frequency in genome reference panel, 0.01 in default.
+```
 </br>
 ### demon
 There is a demon in sample folder.
