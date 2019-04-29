@@ -65,9 +65,9 @@ This file gives summary statistics associated with pairs of variants and molecul
 ##### Example:
 `chromosome` | `molecular_ID` | `variant_pos` | `ref_allele` | `alt_allele` | `z_statistics`
 --|--|--|--|--|--
-1 | ENSG00000223972.4 | 13417 | G | C | 1.5</br>
-1 | ENSG00000227232.4 | 17559 | A | G | 2.6</br>
-1 | ENSG00000227232.4 | 54421 | G | A | -1.0</br>
+1 | ENSG00000223972.4 | 13417 | G | C    | 1.5
+1 | ENSG00000227232.4 | 17559 | A | AGCC | 2.6
+1 | ENSG00000227232.4 | 54421 | G | A    | -1.0
 ......</br>
 
 
@@ -84,13 +84,19 @@ xQTLImp
 ```
 
 
-### demon
-There is a demon in sample folder.
-#### step1: make under src folder
-#### step2: create a new folder for output
-#### step3: Execute the command line under src folder
+### Running sample data
+The sample data is generated from [GTEx](https://gtexportal.org/home/index.html) cis-eQTL results from Brain Amygdala downloaded in January 2019. We selected 50 genes with all associated variants (Pvalue < 1) from chromosome 1.
+
 ```bash
-./xQTLImp -m /sample/gencode_v19_gene_annotation.txt -x /sample/Brain_Amygdala.allpairs.txt -v /sample/ -o (your output folder) -t 6
+cd ./src ; make; cd .. # compliling under src folder
+mkdir sample_output    # creat a new folder for output
+# Running xQTLImp
+./src/xQTLImp                                  \
+-m ./sample/gencode_v19_gene_annotation.txt    \
+-x ./sample/Brain_Amygdala.allpairs.txt        \
+-v ./sample/                                   \
+-o ./sample_output/                            \
+-t 2
 ```
 ### the output file format
 22 subfolders will appear in the output folder,and each folder corresponds to the imputing result on the chromosome.</br>
