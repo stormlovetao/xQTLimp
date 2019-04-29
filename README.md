@@ -21,7 +21,8 @@ make #Any C++11 compiler should work.
 ### Requirements for input files.
 The following files and format are required as input:
 #### 1. Genome reference panel in gzipped VCF format. 
-For example, the 1000G human genome reference panel [(Available here)](ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/), or HapMap3 reference panel [(Available here)](https://www.sanger.ac.uk/resources/downloads/human/hapmap3.html).</br>
+For example, the 1000G human genome reference panel [(Available here)](http://www.internationalgenome.org/data/), or HapMap3 reference panel [(Available here)](https://www.sanger.ac.uk/resources/downloads/human/hapmap3.html).</br>
+
 ```bash
 # Codes for downloading 1000G Chr1 to Chr22 VCF files.
 prefix="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr" ;
@@ -33,7 +34,8 @@ done
 The genotype reference VCF files should be separated by chromosomes, and named in the format of 'chr.*N*.XXX.vcf.gz' within a folder. *N* represents for chromosome number, for example 1~26 (X->23, Y->24, XY (Pseudo-autosomal region of X) ->25, MT (Mitochondrial) ->26); XXX represents for any user defined string. Other domain should be freezed in required format.  </br>
 </br>
 
-*Note:* To get better performance and accuracy, we recommend the users to preprocess the genotype reference VCF files. For example, keeping only samples of EUR population if the input xQTL statistics are from subjects of European ancestry, or/and filtering rare and non-biallelic variants since most of the current xQTL studies still focus on common variants due to limited sample size. The example source codes with *VCFtools* are as follows:
+*Notes:* To get better performance and accuracy, we recommend the users to preprocess the genotype reference VCF files. For example, keeping only samples of EUR population if the input xQTL statistics are from subjects of European ancestry, or/and filtering rare and non-biallelic variants since most of the current xQTL studies still focus on common variants due to limited sample size. The example source codes with *[VCFtools](https://github.com/vcftools/vcftools)* are as follows:
+
 ```bash
 for chr in {1..22} ; do
 vcftools --gzvcf $prefix$chr$suffix 
@@ -45,13 +47,16 @@ done
 ```
 
 #### 2. Molecule annotation file
-Molecule annotation file gives the physical position of each molecule on reference genome.  must start with a line that contains column labels – molecular_ID, start_pos, end_pos ...(option) </br>followed by lines of data entries. Each field of data entries must be separated by white spaces.</br>
+Molecule annotation file gives the physical position of each molecule on reference genome. This annotation file should start with a column name line that contains at least three columns – molecular_ID, start_pos, end_pos ...(optional columns), followed by lines of data entries. Each field of data entries must be separated by white spaces.</br>
 ##### Example:
-`molecular_ID` `start_pos` `end_pos`</br>
-ENSG00000223972.4	11869	14412</br>
-ENSG00000227232.4	14363	29806</br>
-ENSG00000243485.2	29554	31109</br>
-ENSG00000237613.2	34554	36081</br>
+
+`molecular_ID`| `start_pos`| `end_pos`
+------------------|-------|-------
+ENSG00000223972.4	| 11869 |	14412
+ENSG00000227232.4	| 14363	| 29806
+ENSG00000243485.2	| 29554	| 31109
+ENSG00000237613.2	| 34554	| 36081
+
 ......</br>
 </br>
 #### 3.xQTL file
