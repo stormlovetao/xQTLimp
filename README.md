@@ -79,9 +79,11 @@ xQTLImp
 -v folder_path    # string, the folder path of genome reference panel, such as 1000G VCF files.
 -o folder_path    # string, the folder path of output results. 
 -t num_threads    # int, number of threads, 1 in default.
--maf MAF_cutoff   # double, the cutoff of minor allele frequency in genome reference panel, 0.01 in default.
+-f MAF_cutoff     # double, the cutoff of minor allele frequency in genome reference panel, 0.01 in default.
+-l lambda_value   # double, a constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default 
 ```
-</br>
+
+
 ### demon
 There is a demon in sample folder.
 #### step1: make under src folder
