@@ -1,5 +1,5 @@
 # xQTLImp
-## introduction
+## Introduction
 xQTLImp is an open source software that implements xQTL(such as eQTL, mQTL, haQTL et. al) statistics (i.e Z statistics) imputation across the genome. xQTLImp accepts xQTL summary statistics without the need of individual-level genotypes and molecular features, and could accurately impute novel xQTL associations based on genetic reference panel. The imputation process is performed by modeling variants, within same LD and associated with a certain molecular trait, by using multivariate normal distribution. Novel QTL statistics of variants associated with a molecular trait, say gene *G's* expression level, will be calculated as a weighted linear combination of known statistics of variants associated with G, with the weights reflecting LD relationships (i.e. LD r^2) among those variants (See Methods of Paper). Genetic reference panel such as 1000G, HapMap or user-provided refrence panel in gzipped VCF format is required for LD calculations.
 
 In general, xQTLImp can handle any kinds of molecular traits (not limited to gene expression, DNA methylation or histone acetylation) that can be physically mapped onto genomic regions, without limitation in species. Genomic variants such as SNV and small Indel(Insertion/deletion) are both supported. And xQTLImp can be applied in multiple scenarios, such as in performing meta-analysis of multiple eQTL studies which have reported different, but correlated sets of variants. 
@@ -21,12 +21,31 @@ make #Any C++11 compiler should work.
 ### Requirements for input files.
 The following files and format are required as input:
 #### 1. Genome reference panel in gzipped VCF format. 
-For example, the 1000G human genome reference panel [(Available here)](http://bochet.gcc.biostat.washington.edu/beagle/1000_Genomes_phase3_v5a/b37.vcf/), or HapMap3 reference panel [(Available here)](https://www.sanger.ac.uk/resources/downloads/human/hapmap3.html).</br>
-
-The genotype VCF files should be separated by chromosomes, and named in the format of 'chr.*N*.XXX.vcf.gz' within a folder. *N* represents for chromosome number, i.e. 1~26 (X->23, Y->24, XY (Pseudo-autosomal region of X) ->25, MT (Mitochondrial) ->26); XXX represents for any user defined string. Other domain should be freezed in required format.  </br>
+For example, the 1000G human genome reference panel [(Available here)](ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/), or HapMap3 reference panel [(Available here)](https://www.sanger.ac.uk/resources/downloads/human/hapmap3.html).</br>
+```bash
+# Codes for downloading 1000G Chr1 to Chr22 VCF files.
+prefix="ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr" ;
+suffix=".phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz" ;
+for chr in {1..22} ; do
+    wget $prefix$chr$suffix  $prefix$chr$suffix.tbi ;
+done
+```
+The genotype reference VCF files should be separated by chromosomes, and named in the format of 'chr.*N*.XXX.vcf.gz' within a folder. *N* represents for chromosome number, for example 1~26 (X->23, Y->24, XY (Pseudo-autosomal region of X) ->25, MT (Mitochondrial) ->26); XXX represents for any user defined string. Other domain should be freezed in required format.  </br>
 </br>
-#### 2.Molecular trait file
-Molecular trait file must start with a line that contains column labels – molecular_ID, start_pos, end_pos ...(option) </br>followed by lines of data entries. Each field of data entries must be separated by white spaces.</br>
+
+*Note:* To get better performance and accuracy, we recommend the users to preprocess the genotype reference VCF files. For example, keeping only samples of EUR population if the input xQTL statistics are from subjects of European ancestry, or/and filtering rare and non-biallelic variants since most of the current xQTL studies still focus on common variants due to limited sample size. The example source codes with *VCFtools* are as follows:
+```bash
+for chr in {1..22} ; do
+vcftools --gzvcf $prefix$chr$suffix 
+--maf 0.01                           # keep common variants with MAF > 0.01
+--min-alleles 2 --max-alleles 2      # keep biallelic variants
+--keep $EUR_file                     # keep EUR population samples, not provided.
+--remove-filtered-all --recode --stdout | gzip -c > $out_prefix$chr$out_suffix;
+done
+```
+
+#### 2. Molecule annotation file
+Molecule annotation file gives the physical position of each molecule on reference genome.  must start with a line that contains column labels – molecular_ID, start_pos, end_pos ...(option) </br>followed by lines of data entries. Each field of data entries must be separated by white spaces.</br>
 ##### Example:
 `molecular_ID` `start_pos` `end_pos`</br>
 ENSG00000223972.4	11869	14412</br>
