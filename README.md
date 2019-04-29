@@ -109,7 +109,7 @@ rs6899983  | 31758931  | A | C | 0.279963 | 0.89
 ......
 
 ## Reference
-During the implementation of xQTLImp, we referenced the work of:
+During the implementation of xQTLImp, we referenced the following works:
 * Pasaniuc, B. et al., 2014. Fast and accurate imputation of summary statistics enhances evidence of functional enrichment. Bioinformatics, 30(20), pp.2906–2914.
 * Kwan, J.S.H. et al., 2016. FAPI: Fast and Accurate P-value Imputation for genome-wide association study. European Journal of Human Genetics, 24(5), p.761.
 * Han, B., Kang, H.M. & Eskin, E., 2009. Rapid and accurate multiple testing correction and power estimation for millions of correlated markers. PLoS genetics, 5(4), p.e1000456.
