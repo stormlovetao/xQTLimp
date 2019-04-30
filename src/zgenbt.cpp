@@ -1,3 +1,10 @@
+##################################
+## What is the main purpose of this file
+## Introduce main functions (not need to be all functions)
+## This file is adapted from work of Bogdan Pasaniuc et. al [1]. 
+## Reference: [1]. Pasaniuc, Bogdan, et al. "Fast and accurate imputation of summary statistics enhances evidence of functional enrichment." Bioinformatics 30.20 (2014): 2906-2914.
+##################################
+
 #include "zgenbt.h"
 
 ans zgenbt(vector<int>* p_snps_flag ,vector<typed_snp> typed_snps,vector<ref_snp> all_snps,
