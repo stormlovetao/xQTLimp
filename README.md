@@ -115,5 +115,11 @@ During the implementation of xQTLImp, we referenced the following works:
 * Han, B., Kang, H.M. & Eskin, E., 2009. Rapid and accurate multiple testing correction and power estimation for millions of correlated markers. PLoS genetics, 5(4), p.e1000456.
 
 
-
+## Bug shooting
+```bash
+# Mac user might occur the following error during compiling:
+# xcrun: error: invalid active developer path (/Library/Developer/CommandLineTools), missing xcrun at: /Library/Developer/CommandLineTools/usr/bin/xcrun
+# which means you need to install proper C++ compiling environment. Installing XCode can fix this problem, open a Terminal and run this command:
+xcode-select --install
+```
 
