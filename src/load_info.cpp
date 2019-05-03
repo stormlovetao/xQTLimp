@@ -84,6 +84,7 @@ void load_gene_pos_map(string gene_annotation , map<string,long long int*> *gene
 	ifstream fin(gene_annotation.c_str());
 	string line;
 	getline(fin,line);
+	getline(fin,line);
 	while(line != "")
 	{
 		//pos0:start pos  pos1:end pos
