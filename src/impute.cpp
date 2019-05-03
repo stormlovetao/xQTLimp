@@ -414,9 +414,15 @@ vector<char> impute_flags,vector<long long int>* p_useful_typed_snps) {
 		index++;
 		
 		// print to file
+		if(impute_flags[idx] == 1)
 		fprintf(fout, "%s %lld %s %s %.6lf %.6lf 1\n",
 			all_snps[idx].snp_name.c_str(), all_snps[idx].snp_pos, all_snps[idx].ref_allele.c_str(),
 			all_snps[idx].alt_allele.c_str(), imp_zscore, var);
+		else
+		fprintf(fout, "%s %lld %s %s %.6lf %.6lf 0\n",
+			all_snps[idx].snp_name.c_str(), all_snps[idx].snp_pos, all_snps[idx].ref_allele.c_str(),
+			all_snps[idx].alt_allele.c_str(), imp_zscore, var);
+			
 			
 	}
 	
