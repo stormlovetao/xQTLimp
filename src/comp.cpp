@@ -267,7 +267,7 @@ void organize_files(string out)
 		string out_file = out + "chr"+ string(tem) + "_zscores.txt";
 	//	cout << out_file << endl;
 		FILE* fp = fopen(out_file.c_str() , "w");
-		fprintf(fp, "Gene_name SNP_name SNP_pos Ref_Allele Alt_Allele Z-Score r2pred\n");
+		fprintf(fp, "Gene_name SNP_name SNP_pos Ref_Allele Alt_Allele Z-Score r2pred Impute_flag\n");
 		struct dirent* ent = NULL;
    	 	DIR *pDir;
    	 	pDir=opendir(new_path1.c_str());
