@@ -93,7 +93,7 @@ mkdir sample_output    # creat a new folder for output
 # Running xQTLImp
 ./src/xQTLImp                                  \
 -m ./sample/gencode_v19_gene_annotation.txt    \
--x ./sample/Brain_Amygdala.sample.allpairs.txt        \
+-x ./sample/Brain_Amygdala.allpairs.sample.txt \
 -v ./sample/                                   \
 -o ./sample_output/                            \
 -t 2
