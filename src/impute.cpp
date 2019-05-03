@@ -371,7 +371,7 @@ vector<char> impute_flags,vector<long long int>* p_useful_typed_snps) {
 	// impute for all snps
 	double exp_zscore_mean = 0.0;
 	FILE* fout = safe_fopen(OUT_FILE.c_str(), "w");
-	fprintf(fout, "SNP_name SNP_pos Ref_Allele Alt_Allele Z-Score r2pred\n");
+	fprintf(fout, "SNP_name SNP_pos Ref_Allele Alt_Allele Z-Score r2pred Impute_flag\n");
 	
 //	size_t typed_snp_idx = 0;
 	int index = 0;
@@ -393,7 +393,7 @@ vector<char> impute_flags,vector<long long int>* p_useful_typed_snps) {
 
 		while(cursor < combine_len && combine_pos < current_pos)
 		{
-			fprintf(fout, "\t.\t %lld %s %s %.6lf %.6lf\n",
+			fprintf(fout, "\t.\t %lld %s %s %.6lf %.6lf 0\n",
 			 combine[cursor].snp_pos,combine[cursor].ref_allele.c_str(),
 			combine[cursor].alt_allele.c_str(),combine[cursor].zscore, 1.0);
 			cursor++;
@@ -414,7 +414,7 @@ vector<char> impute_flags,vector<long long int>* p_useful_typed_snps) {
 		index++;
 		
 		// print to file
-		fprintf(fout, "%s %lld %s %s %.6lf %.6lf\n",
+		fprintf(fout, "%s %lld %s %s %.6lf %.6lf 1\n",
 			all_snps[idx].snp_name.c_str(), all_snps[idx].snp_pos, all_snps[idx].ref_allele.c_str(),
 			all_snps[idx].alt_allele.c_str(), imp_zscore, var);
 			
