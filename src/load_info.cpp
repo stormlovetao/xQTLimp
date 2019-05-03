@@ -200,11 +200,11 @@ void read_hap(string line,vector<string>* p_hap)
 	int len = line.length();
 	for(int i = 0;i < 9;i++)
 	{
-		while(line[index] != '\t')
+		while(line[index] != '\t' && line[index] != ' ')
 		{
 			index++;
 		}
-		while(line[index] == '\t')
+		while(line[index] == '\t' || line[index] == ' ')
 		{
 			index++;
 		}

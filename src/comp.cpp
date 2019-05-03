@@ -4,15 +4,15 @@ string read_pos(string line)
 {
 	string pos = "";
 	int i = 0;
-	while(line[i] != '\t')
+	while(line[i] != '\t' && line[i] != ' ')
 	{
 		i++;
 	}
-	while(line[i] == '\t')
+	while(line[i] == '\t' || line[i] == ' ' )
 	{
 		i++;
 	}
-	while(line[i] != '\t')
+	while(line[i] != '\t' && line[i] != ' ')
 	{
 		pos += line[i];
 		i++;
@@ -29,7 +29,7 @@ void split_line(string line_list[],string line)
 	for(int i = 0;i < line.length();i++)
 	{
 		flag = 0;
-		if(line[i] == '\t')
+		if(line[i] == '\t' || line[i] == ' ' )
 		{
 			flag = 1;
 			i++;
@@ -57,23 +57,23 @@ void extract(long long int* pos,string* gene_name,string line)
 {
 	//read start pos
 	int index = 0;
-	while(line[index] != '\t')
+	while(line[index] != '\t' && line[index] != ' ' )
 	{
 		(*gene_name) += line[index];
 		index++;
 	}
 
-	while(line[index] == '\t')
+	while(line[index] == '\t' || line[index] == ' ')
 	{
 		index++;
 	}
 	string pos1 = "";
-	while(line[index] != '\t')
+	while(line[index] != '\t'&& line[index] != ' ')
 	{
 		pos1 += line[index];
 		index++;
 	}
-	while(line[index] == '\t')
+	while(line[index] == '\t'|| line[index] == ' ')
 	{
 		index++;
 	} 
@@ -81,7 +81,7 @@ void extract(long long int* pos,string* gene_name,string line)
 	pos[0] = atoi(pos1.c_str());
 	//read end pos
 	string pos2 = "";
-	while( (line[index] != '\t') && (index < line.length()) )
+	while( (index < line.length()) && (line[index] != '\t' && line[index] != ' ') )
 	{
 		pos2 += line[index];
 		index++; 
@@ -93,58 +93,58 @@ void extract(long long int* pos,string* gene_name,string line)
 bool read_pos_name_alleles(string line , long long int* pos , string* name,string allele[2])
 {
 	int index = 0;
-	while(line[index] != '\t')
+	while(line[index] != '\t' && line[index] != ' ')
 	{
 		index++;
 	}
-	while(line[index] == '\t')
+	while(line[index] == '\t' || line[index] == ' ')
 	{
 		index++;
 	}
 	
 	
 	string str_pos = "";
-	while(line[index] != '\t')
+	while(line[index] != '\t' && line[index] != ' ' )
 	{
 		str_pos += line[index];
 		index++;
 	}
-	while(line[index] == '\t')
+	while(line[index] == '\t'  || line[index] == ' ')
 	{
 		index++;
 	}
 	(*pos) = atoi(str_pos.c_str());
 	
 	(*name) = "";
-	while(line[index] != '\t')
+	while(line[index] != '\t' && line[index] != ' ')
 	{
 		(*name) += line[index];
 		index++;
 	}
-	while(line[index] == '\t')
+	while(line[index] == '\t' || line[index] == ' ')
 	{
 		index++;
 	}
 	
 	string ref = "";	
-	while(line[index] != '\t')
+	while(line[index] != '\t' && line[index] != ' ')
 	{
 		ref += line[index];
 		index++;
 	}
-	while(line[index] == '\t')
+	while(line[index] == '\t' || line[index] == ' ')
 	{
 		index++;
 	}
 	
 	string alt = "";
-	while(line[index] != '\t')
+	while(line[index] != '\t' && line[index] != ' ')
 	{
 		alt += line[index];
 		index++;
 	}
 	
-	while(line[index] != '\t')
+	while(line[index] != '\t' || line[index] == ' ')
 	{
 		alt += line[index];
 		index;
@@ -193,7 +193,7 @@ int get_chrom(string line)
 {
 	int index = 0;
 	string chrom = "";
-	while(line[index] != '\t')
+	while(line[index] != '\t' && line[index] != ' ')
 	{
 		chrom += line[index];
 		index++;
