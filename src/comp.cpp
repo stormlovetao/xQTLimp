@@ -178,15 +178,25 @@ void clean_all_vector(      		vector<typed_snp> *p_maf_snps,
 							vector<snps>*p_ignore_snps , 
 							vector<ref_snp>*p_snp_map,
 							vector<string>* p_hap,
-							vector<long long int>* p_useful_typed_snps)
+							vector<long long int>* p_useful_typed_snps,
+								vector<int>* p_snps_flag)
 {
 	(*p_maf_snps).clear();
+	(*p_maf_snps).shrink_to_fit();
 	(*p_origin_typed_snps).clear();
+	(*p_origin_typed_snps).shrink_to_fit();
 	(*p_typed_snps).clear();
+	(*p_typed_snps).shrink_to_fit();
 	(*p_ignore_snps).clear();
+	(*p_ignore_snps).shrink_to_fit();
 	(*p_snp_map).clear();
+	(*p_snp_map).shrink_to_fit();
 	(*p_hap).clear();
+	(*p_hap).shrink_to_fit();
 	(*p_useful_typed_snps).clear();
+	(*p_useful_typed_snps).shrink_to_fit();
+	(*p_useful_typed_snps).clear();
+	(*p_useful_typed_snps).shrink_to_fit();
 								
 }
 int get_chrom(string line)
@@ -210,7 +220,7 @@ void split_chrom(string eqtl_path ,long long int chrom[])
 	{
 		chrom[i] = 0;
 	}
-	cout << "Dividing eqtl file into several chroms.....\n" ;
+	cout << "Scaning xQTL file...\n" ;
 	ifstream fin(eqtl_path.c_str());
 	string line;
 	getline(fin , line);
@@ -267,7 +277,7 @@ void organize_files(string out)
 		string out_file = out + "chr"+ string(tem) + "_zscores.txt";
 	//	cout << out_file << endl;
 		FILE* fp = fopen(out_file.c_str() , "w");
-		fprintf(fp, "Gene_name SNP_name SNP_pos Ref_Allele Alt_Allele Z-Score r2pred\n");
+		fprintf(fp, "Gene_name SNP_name SNP_pos Ref_Allele Alt_Allele Z-Score r2pred Impute_flag\n");
 		struct dirent* ent = NULL;
    	 	DIR *pDir;
    	 	pDir=opendir(new_path1.c_str());

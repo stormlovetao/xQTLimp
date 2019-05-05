@@ -27,16 +27,16 @@ void *main_process(void *threadarg)
 {
 		struct thread_data *my_data;
 		my_data = (struct thread_data *) threadarg;
-   		map<string,long long int>* p_VcfIndex = my_data -> p_VcfIndex;
-   		vector<string>* p_VcfFile = my_data -> p_VcfFile;
-   		map<string,long long int*> *gene_pos_map = my_data -> gene_pos_map;
+   	map<string,long long int>* p_VcfIndex = my_data -> p_VcfIndex;
+   	vector<string>* p_VcfFile = my_data -> p_VcfFile;
+   	map<string,long long int*> *gene_pos_map = my_data -> gene_pos_map;
    		
-   		string ref_file = my_data -> ref_file; 
-   		string eqtl_path = my_data -> eqtl_path; 
-   		string out_dir = my_data -> out_dir;
-   		long long int start = my_data -> start; 
-   		long long int end = my_data -> end;
-   		int chrom = my_data -> chrom;
+   	string ref_file = my_data -> ref_file; 
+   	string eqtl_path = my_data -> eqtl_path; 
+   	string out_dir = my_data -> out_dir;
+   	long long int start = my_data -> start; 
+   	long long int end = my_data -> end;
+   	int chrom = my_data -> chrom;
 		double maf = my_data -> maf;
 		double lam  = my_data -> lam;
 		
@@ -69,10 +69,11 @@ void *main_process(void *threadarg)
 		map<long long int , int> m_typed_snps ;
 		map<long long int , int> *p_m_all_snps = &m_all_snps;
 		map<long long int , int> *p_m_typed_snps = &m_typed_snps;
-		double** last_sigma_it = NULL;
+		
 		ans values;
 		values.last_sigma_it = NULL;
 		values.weight = NULL;
+		values.yaoyao = 0;
 		int flag = 0;
 		while(fin.tellg() <= end)
 		{
@@ -121,12 +122,12 @@ void *main_process(void *threadarg)
 				vector<int>* p_snps_flag = &snps_flag;	
 				values = zgenbt(p_maf_snps , maf , lam , p_snps_flag ,typed_snps, snp_map , convert_flags , impute_flags , 
 											hap , p_useful_typed_snps,
-				p_m_all_snps,p_m_typed_snps,values.last_sigma_it);
+				p_m_all_snps,p_m_typed_snps,values.last_sigma_it,values.yaoyao);
 
 				impz(p_maf_snps , p_ignore_snps , chrom , out_dir , last_gene_name , p_snps_flag , values.weight ,typed_snps, snp_map , impute_flags ,p_useful_typed_snps );	
 				//final.start new recorder and record gene_name snp
 				clean_all_vector(p_maf_snps , p_origin_typed_snps , p_typed_snps ,
-								p_ignore_snps , p_snp_map , p_hap ,p_useful_typed_snps);
+								p_ignore_snps , p_snp_map , p_hap ,p_useful_typed_snps , p_snps_flag);
 				
 				if(1 == flag)
 				{
@@ -148,6 +149,8 @@ void *main_process(void *threadarg)
 			free(values.last_sigma_it[i]);
 		}
 		free(values.last_sigma_it);
+		m_all_snps.clear();
+		m_typed_snps.clear();
 		
 		sem_post(my_data -> bin_sem); //信号量+1
 
@@ -234,11 +237,10 @@ int main(int argc , char *argv[])
 
 	//load gene_pos_map
 	map<string,long long int*> pos1;
-	map<string,long long int*> *gene_pos_map = &pos1;
-	printf("Reading gene annotation file......\n"); 
-	load_gene_pos_map(gene_annotation , gene_pos_map);
-	cout << "Gene pos information loaded" << endl;		
-		
+	map<string,long long int*> *gene_pos_map = &pos1; 
+	cout << "Reading molecular annotation file..." << endl;	
+	load_gene_pos_map(gene_annotation , gene_pos_map);	
+	cout << "Done!" << endl;
 	//seperate chrom
 	long long int chrom[24];
 	split_chrom(eqtl_path , chrom);
@@ -315,6 +317,7 @@ int main(int argc , char *argv[])
         	sem_wait(&bin_sem);    //循环等待n次，相当于线程都执行完了
     	}
     	sem_destroy(&bin_sem);        //释放信号量
+    	
 		printf("the %dst chrom finished\n",chrom);
 	}
 	

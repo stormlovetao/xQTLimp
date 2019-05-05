@@ -32,7 +32,8 @@ void clean_all_vector(	vector<typed_snp> *p_maf_snps,
 							vector<snps>*p_ignore_snps , 
 							vector<ref_snp>*p_snp_map,
 							vector<string>* p_hap,
-							vector<long long int>* p_useful_typed_snps);
+							vector<long long int>* p_useful_typed_snps,
+							vector<int>* p_snps_flag);
 int get_chrom(string line);
 void split_chrom(string eqtl_path ,long long int chrom[]);
 void make_output_dir(char *Out);
