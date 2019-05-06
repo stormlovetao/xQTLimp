@@ -87,7 +87,7 @@ xQTLImp
 
 
 ### Running sample data
-The sample data is generated from [GTEx](https://gtexportal.org/home/index.html) cis-eQTL results from Brain Amygdala downloaded in January 2019. We selected 50 genes with all associated variants (Pvalue < 1) from chromosome 1.
+The sample data is generated from [GTEx](https://gtexportal.org/home/index.html) cis-eQTL results from Brain Amygdala downloaded in January 2019. We selected 49 genes with all associated variants (Pvalue < 1) from chromosome 1.
 
 ```bash
 cd ./src ; make; cd .. # compliling under src folder
