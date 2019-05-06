@@ -102,11 +102,11 @@ mkdir sample_output    # creat a new folder for output
 ### xQTLImp output file format
 *N* subfolders will be created in the output folder, and each folder contains the imputation results on each chromosome (*N* = number of chromosomes).</br> Imputation results associated with each molecule are seperately saved under each chromosome subfolder (for parallele mode consideration), and user can run the script ./scripts/merge.py to merge them into one union file for each chromosome.</br>
 #### Example:
-`SNP_name` | `SNP_pos` | `Ref_Allele` | `Alt_Allele` | `Z-Score` | `r2pred` | `Impute_flag`
---|--|--|--|--|--|--
-rs142006308 | 31757791 | G | A | 0.328344 | 0.98 | 1
-rs71563368 |  31758240 | G | A | 0.335234 | 1.00 | 0
-rs6899983  | 31758931  | A | C | 0.279963 | 0.89 | 1  
+`Chr` | `Molecular_ID` | `Molecular_Start` | `Molecular_End` | `Variant_ID` | `Variant_pos` | `Variant_Ref` | `Variant_Alt` | `Z-Statistic` | `R2pred` | `Imputation_flag`
+--|--|--|--|--|--|--|--|--|--|--
+1 | 521369 | 523833 | ENSG00000231709.1 | 1_13417_C_CGAGA | 13417 | C | CGAGA | -0.338210 | 0.98 | 1
+1 | 521369 | 523833 | ENSG00000231709.1 | 1_17559_G_C | 17559 | G | C | 1.605512 | 1.000000 | 0
+1 | 521369 | 523833 | ENSG00000231709.1 | 1_54421_A_G | 54421 | A | G | 1.069012 | 1.000000 | 0
 ......
 
 ## Reference
