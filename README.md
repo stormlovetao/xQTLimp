@@ -81,7 +81,7 @@ xQTLImp
 -t num_threads    # int, number of threads, 1 in default.
 -f MAF_cutoff     # double, the cutoff of minor allele frequency in genome reference panel, 0.01 in default.
 -l lambda_value   # double, a constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default 
--w window_size    #int, The range of results
+-w window_size    #int, The range of results, 500kb in default
 -h                # Print this usage.
 ```
 
