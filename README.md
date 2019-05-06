@@ -81,6 +81,7 @@ xQTLImp
 -t num_threads    # int, number of threads, 1 in default.
 -f MAF_cutoff     # double, the cutoff of minor allele frequency in genome reference panel, 0.01 in default.
 -l lambda_value   # double, a constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default 
+-w window_size    #int, The range of results
 -h                # Print this usage.
 ```
 
@@ -97,7 +98,8 @@ mkdir sample_output    # creat a new folder for output
 -x ./sample/Brain_Amygdala.allpairs.sample.txt \
 -v ./sample/                                   \
 -o ./sample_output/                            \
--t 2
+-t 2                                           \
+-w 500000
 ```
 ### xQTLImp output file format
 *N* subfolders will be created in the output folder, and each folder contains the imputation results on each chromosome (*N* = number of chromosomes).</br> Imputation results associated with each molecule are seperately saved under each chromosome subfolder (for parallele mode consideration), and user can run the script ./scripts/merge.py to merge them into one union file for each chromosome.</br>
