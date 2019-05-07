@@ -2,6 +2,7 @@
 #include <semaphore.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <getopt.h>
 #include "impute.h"
 #include "load_info.h"
 #include "comp.h"
@@ -21,6 +22,7 @@ struct thread_data{
    sem_t * bin_sem;
   double maf;
   double lam;
+  int window_size;
 };
 
 void *main_process(void *threadarg)
@@ -36,6 +38,7 @@ void *main_process(void *threadarg)
    	string out_dir = my_data -> out_dir;
    	long long int start = my_data -> start; 
    	long long int end = my_data -> end;
+	int window_size = my_data -> window_size;
    	int chrom = my_data -> chrom;
 		double maf = my_data -> maf;
 		double lam  = my_data -> lam;
@@ -91,7 +94,7 @@ void *main_process(void *threadarg)
 			{
 			//calculate window
 				long long int window[2]; 
-				calculate_window(window , last_gene_name , gene_pos_map);
+				calculate_window(window_size , window , last_gene_name , gene_pos_map);
 			
 			// 1.split origin_typed_snps into typed_snps
 			//and unuseful snps(wrong and special type)
@@ -166,11 +169,40 @@ int main(int argc , char *argv[])
 	char* BATCH = NULL;
 	char* MAF = NULL;
 	char* LAMBDA = NULL;
+	char* WIN = NULL;
 
-	while((opt = getopt(argc,argv,"m:x:v:o:t:f:l:")) != -1) 
-	{
-		switch(opt) 
-		{
+	const char *const short_options = "hx:m:v:o:t:f:l:w:";
+	const struct option long_options[] = {
+	{"help", 0, NULL, 'h'},
+	{"xQTL", 1, NULL, 'x'},
+	{"molecule", 1, NULL, 'm'},
+	{"VCF", 1, NULL, 'v'},
+	{"output", 1, NULL, 'o'},
+	{"threads", 1, NULL, 't'},
+	{"MAF_cutoff", 1, NULL, 'f'}, 
+	{"lambda", 1, NULL, 'l'},
+	{"window_size", 1, NULL, 'w'},
+	{NULL, 0, NULL, 0 }
+	};
+
+	char *program_name;
+	char input_filename[256], output_directory[256];
+
+	int v = 0;
+	strcpy(output_directory, "result");
+	int next_option = 1;
+
+	int counter = 0;
+	program_name = argv[0];
+	do {
+		next_option = getopt_long (argc, argv, short_options, long_options, NULL);
+
+		switch (next_option)
+		 {
+			case 'h':
+				print_usage (stdout, 0);
+				break;
+
 			case 'm': // prefix used in gen_beta
 				Gene_annotation = (char *) strdup(optarg);
 				break;
@@ -192,9 +224,26 @@ int main(int argc , char *argv[])
 			case 'l':
 				LAMBDA = (char*)strdup(optarg);
 				break;
-					
-		}
-	}
+			case 'w':
+				WIN = (char*)strdup(optarg);
+				break;
+
+			case '?':
+				print_usage (stdout, 1);
+				break;
+
+			case -1:/* Done with options. */
+				if(counter ==0)
+				{
+				        print_usage (stdout, 0);
+				}
+				break;
+
+			default:/* Something else: unexpected. */
+				print_usage (stderr, -1);
+		 }
+		counter++;
+	} while (next_option != -1);
 	
 	string gene_annotation = string(Gene_annotation);
 	string eqtl_path = string(Eqtl_path);
@@ -203,6 +252,7 @@ int main(int argc , char *argv[])
 	int batch = 1;
 	double maf = 0.01;
 	double lam = 0.1;
+	int window_size = 500000;
 
 	if(BATCH == NULL)
 	{
@@ -229,6 +279,15 @@ int main(int argc , char *argv[])
 	else
 	{
 		lam = double(atof(LAMBDA));
+	}
+
+	if(WIN == NULL)
+	{
+		window_size = 500000;
+	}
+	else
+	{
+		window_size = int(atoi(WIN));
 	}
 
 
@@ -304,6 +363,7 @@ int main(int argc , char *argv[])
 			td[ii].chrom = chrom;
 			td[ii].maf = maf;
 			td[ii].lam = lam;
+			td[ii].window_size = window_size;
 
 			int ret = pthread_create(&tids[ii], NULL, main_process, (void *)&td[ii]);
 			if (ret != 0)
@@ -323,7 +383,7 @@ int main(int argc , char *argv[])
 	
 	printf("organizing files......\n");
 	
-	organize_files(out);
+	organize_files(out , pos1);
 	
 	cout << "finish imputation\n";
 	

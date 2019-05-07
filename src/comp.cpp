@@ -155,7 +155,7 @@ bool read_pos_name_alleles(string line , long long int* pos , string* name,strin
 	return true;
 }
 
-void calculate_window(long long int window[2],string last_gene_name ,
+void calculate_window(int window_size , long long int window[2],string last_gene_name ,
 				map<string,long long int*> *gene_pos_map)
 {
 
@@ -265,7 +265,7 @@ void make_output_dir(char *Out)
 	
 }
 
-void organize_files(string out)
+void organize_files(string out , map<string,long long int*> pos_map)
 {
 	
 	for(int i = 1;i <= 22;i++)
@@ -277,7 +277,7 @@ void organize_files(string out)
 		string out_file = out + "chr"+ string(tem) + "_zscores.txt";
 	//	cout << out_file << endl;
 		FILE* fp = fopen(out_file.c_str() , "w");
-		fprintf(fp, "Gene_name SNP_name SNP_pos Ref_Allele Alt_Allele Z-Score r2pred Impute_flag\n");
+		fprintf(fp, "Chr Molecular_ID Molecular_Start Molecular_End Variant_ID Variant_pos Variant_Ref Variant_Alt Z-Statistic R2pred Imputation_flag\n");
 		struct dirent* ent = NULL;
    	 	DIR *pDir;
    	 	pDir=opendir(new_path1.c_str());
@@ -291,9 +291,11 @@ void organize_files(string out)
 				string line;
 				getline(fin,line);
 				getline(fin,line);
+				long long int start = pos_map[string(ent -> d_name)][0];
+				long long int end = pos_map[string(ent -> d_name)][1];
 				while(line != "")
 				{
-				    fprintf(fp, "%s %s\n"  , ent -> d_name , line.c_str());
+				    fprintf(fp, "%s %lld %lld %s %s\n"  ,tem ,  start , end , ent -> d_name , line.c_str());
 				    getline(fin , line);
 				}
 				fin.close();
@@ -311,6 +313,23 @@ void organize_files(string out)
 
 	}
 
+}
+
+void print_usage (FILE * stream, int exit_code)
+{
+	fprintf (stream, "Usage: xQTLImp options\n ");
+	fprintf (stream,
+	"-h --help\t\t\tDisplay this usage information. \n"
+	"-x --xQTL filepath\t\tthe file path of xQTL summary statistics.\n"
+	"-m --molecule annotation file\tthe file path of molecule annotation file..\n"
+	"-v --VCF files\t\t\tthe folder path of genome reference panel, such as 1000G VCF files.\n"
+	"-o --output results\t\tthe folder path of output results.\n"
+	"-t --num_threads\t\tUndirected input network\n"
+	"-f --MAF_cutoff\t\t\tlimitation of Enumerated subgraphs\n"
+	"-l --lambda_value\t\ta constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default \n"
+	"-w--window_size \t\tthe range of results\n");
+
+	exit (exit_code);
 }
 
 

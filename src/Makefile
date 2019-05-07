@@ -10,19 +10,24 @@ $(BIN): $(OBJ)
 	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS) -lz -lpthread 
 
 utils.o: utils.cpp
-	$(CPP) -c utils.cpp -o utils.o $(CXXFLAGS)
+	$(CPP) -c utils.cpp -o utils.o $(CXXFLAGS) -std=c++11
 
 impute.o: impute.cpp
-	$(CPP) -c impute.cpp -o impute.o $(CXXFLAGS)
+	$(CPP) -c impute.cpp -o impute.o $(CXXFLAGS) -std=c++11
 
 
 xQTLImp.o: xQTLImp.cpp
-	$(CPP) -c xQTLImp.cpp -o xQTLImp.o $(CXXFLAGS) 
+	$(CPP) -c xQTLImp.cpp -o xQTLImp.o $(CXXFLAGS) -std=c++11
 
 load_info.o: load_info.cpp
-	$(CPP) -c load_info.cpp -o load_info.o $(CXXFLAGS)
+	$(CPP) -c load_info.cpp -o load_info.o $(CXXFLAGS) -std=c++11
 comp.o: comp.cpp
-	$(CPP) -c comp.cpp -o comp.o $(CXXFLAGS)
+	$(CPP) -c comp.cpp -o comp.o $(CXXFLAGS) -std=c++11
+
+clean:
+	@echo "Removing objects..."
+	rm -f *.o
+	rm -f $(BIN)
 
 
 
