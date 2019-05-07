@@ -27,8 +27,8 @@ struct thread_data{
 
 void *main_process(void *threadarg)
 {
-		struct thread_data *my_data;
-		my_data = (struct thread_data *) threadarg;
+	struct thread_data *my_data;
+	my_data = (struct thread_data *) threadarg;
    	map<string,long long int>* p_VcfIndex = my_data -> p_VcfIndex;
    	vector<string>* p_VcfFile = my_data -> p_VcfFile;
    	map<string,long long int*> *gene_pos_map = my_data -> gene_pos_map;
@@ -40,38 +40,39 @@ void *main_process(void *threadarg)
    	long long int end = my_data -> end;
 	int window_size = my_data -> window_size;
    	int chrom = my_data -> chrom;
-		double maf = my_data -> maf;
-		double lam  = my_data -> lam;
+	double maf = my_data -> maf;
+	double lam  = my_data -> lam;
 		
-		ifstream fin(eqtl_path.c_str());
-		fin.seekg(start);
-		string line;
-		vector<snps> origin_typed_snps;
-		vector<snps> *p_origin_typed_snps = &origin_typed_snps;
-		vector<typed_snp> typed_snps;
-		vector<typed_snp> *p_typed_snps = &typed_snps;
-		vector<typed_snp> maf_snps;
-		vector<typed_snp> *p_maf_snps = &maf_snps;
-		vector<snps> ignore_snps;
-		vector<snps> *p_ignore_snps = &ignore_snps;
-		vector<ref_snp> snp_map;
-		vector<ref_snp> *p_snp_map = &snp_map;
+	ifstream fin(eqtl_path.c_str());
+	fin.seekg(start);
+	string line;
+	vector<snps> origin_typed_snps;
+	vector<snps> *p_origin_typed_snps = &origin_typed_snps;
+	vector<typed_snp> typed_snps;
+	vector<typed_snp> *p_typed_snps = &typed_snps;
+	vector<typed_snp> maf_snps;
+	vector<typed_snp> *p_maf_snps = &maf_snps;
+	vector<snps> ignore_snps;
+	vector<snps> *p_ignore_snps = &ignore_snps;
+	vector<ref_snp> snp_map;
+	vector<ref_snp> *p_snp_map = &snp_map;
 	
-		vector<string> hap;
-		vector<string> *p_hap = &hap; 
+	vector<string> hap;
+	vector<string> *p_hap = &hap; 
 	 
-		//start extract
-		getline(fin,line);
-		string line_list[9];
-		split_line(line_list,line);
-		string gene_name = line_list[1];
-		string last_gene_name;
-		//record the gene
+	//start extract
+	getline(fin,line);
+	string line_list[9];
+	split_line(line_list,line);
+	string gene_name = line_list[1];
+	string last_gene_name;
+	record_all(p_origin_typed_snps , line_list[2] , line_list[3] , line_list[4] , line_list[5]);	
+	//record the gene
 	
-		map<long long int , int> m_all_snps ;
-		map<long long int , int> m_typed_snps ;
-		map<long long int , int> *p_m_all_snps = &m_all_snps;
-		map<long long int , int> *p_m_typed_snps = &m_typed_snps;
+	map<long long int , int> m_all_snps ;
+	map<long long int , int> m_typed_snps ;
+	map<long long int , int> *p_m_all_snps = &m_all_snps;
+	map<long long int , int> *p_m_typed_snps = &m_typed_snps;
 		
 		ans values;
 		values.last_sigma_it = NULL;
@@ -290,10 +291,6 @@ int main(int argc , char *argv[])
 		window_size = int(atoi(WIN));
 	}
 
-
-
-	make_output_dir(Out);
-
 	//load gene_pos_map
 	map<string,long long int*> pos1;
 	map<string,long long int*> *gene_pos_map = &pos1; 
@@ -301,11 +298,13 @@ int main(int argc , char *argv[])
 	load_gene_pos_map(gene_annotation , gene_pos_map);	
 	cout << "Done!" << endl;
 	//seperate chrom
-	long long int chrom[24];
-	split_chrom(eqtl_path , chrom);
-		
+	long long int chrom[1261];
+	int chrom_num = split_chrom(eqtl_path , chrom);
+	cout << "The total number of chromosomes in the file is " << chrom_num << endl;
 
-	for(int i = 1;i <= 22;i++)
+	make_output_dir(chrom_num , Out);
+
+	for(int i = 1;i <= chrom_num;i++)
 	{
 		long long int start = chrom[i - 1];
 		long long int end = chrom[i];
@@ -383,7 +382,7 @@ int main(int argc , char *argv[])
 	
 	printf("organizing files......\n");
 	
-	organize_files(out , pos1);
+	organize_files(chrom_num , out , pos1);
 	
 	cout << "finish imputation\n";
 	

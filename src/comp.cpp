@@ -214,9 +214,9 @@ int get_chrom(string line)
 	
 }
 
-void split_chrom(string eqtl_path ,long long int chrom[])
+int split_chrom(string eqtl_path ,long long int chrom[])
 {
-	for(int i = 0;i <= 22;i++)
+	for(int i = 0;i <= 100;i++)
 	{
 		chrom[i] = 0;
 	}
@@ -228,7 +228,7 @@ void split_chrom(string eqtl_path ,long long int chrom[])
 	chrom[0] = fin.tellg();
 	int current_chrom = 1;
 	long long int pos = 0;
-	while(current_chrom <= 22)
+	while(true)
 	{
 		pos = fin.tellg();
 		getline(fin , line);
@@ -248,14 +248,17 @@ void split_chrom(string eqtl_path ,long long int chrom[])
 			current_chrom++;	
 		} 
 	}
+		
+
+	return current_chrom;
 	
 }
 
-void make_output_dir(char *Out)
+void make_output_dir(int chrom_num , char *Out)
 {
 	string path = string(Out);
 	char tem[10];
-	for(int i = 1;i <= 22;i++)
+	for(int i = 1;i <= chrom_num;i++)
 	{
 		string new_path = path;
 		sprintf(tem , "%d" , i);
@@ -265,10 +268,10 @@ void make_output_dir(char *Out)
 	
 }
 
-void organize_files(string out , map<string,long long int*> pos_map)
+void organize_files(int chrom_num , string out , map<string,long long int*> pos_map)
 {
 	
-	for(int i = 1;i <= 22;i++)
+	for(int i = 1;i <= chrom_num;i++)
 	{
 		string new_path = out;
 		char tem[10];
