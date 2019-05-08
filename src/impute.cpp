@@ -3,7 +3,7 @@
 ans zgenbt(vector<typed_snp> *p_maf_snps , double maf , double lam , vector<int>* p_snps_flag ,vector<typed_snp> typed_snps,vector<ref_snp> all_snps,
 vector<char> convert_flags,vector<char> impute_flags , 
 	vector<string> haps,vector<long long int>* p_useful_typed_snps,
-	map<long long int, int> *p_m_all_snps,map<long long int,int> *p_m_typed_snps , double** last_sigma_it ,int yaoyao)
+	map<long long int, int> *p_m_all_snps,map<long long int,int> *p_m_typed_snps , double** last_sigma_it ,int row)
 {
 	size_t num_typed_snps = typed_snps.size();
 	size_t num_total_snps = all_snps.size();
@@ -233,7 +233,7 @@ vector<char> convert_flags,vector<char> impute_flags ,
 	
 	if(last_sigma_it != NULL)
 	{
-		for(int i = 0;i < yaoyao;i++)
+		for(int i = 0;i < row;i++)
 		{
 			free(last_sigma_it[i]);
 		}
@@ -296,13 +296,13 @@ vector<char> convert_flags,vector<char> impute_flags ,
 	ans values;
 	values.last_sigma_it = last_sigma_it;
 	values.weight = weight;
-	(values.yaoyao) = num_total_snps - counter;
+	(values.row) = num_total_snps - counter;
 	
 	return values;	
 
 }
 
-void impz(vector<typed_snp> *p_maf_snps , vector<snps> *p_ignore_snps , int chrom , string out_dir , string last_gene_name , vector<int>* p_snps_flag , double** weight ,vector<typed_snp> typed_snps,vector<ref_snp> all_snps,
+void impz(vector<typed_snp> *p_maf_snps , vector<snps> *p_ignore_snps , int chrom , string out_dir , string last_name , vector<int>* p_snps_flag , double** weight ,vector<typed_snp> typed_snps,vector<ref_snp> all_snps,
 vector<char> impute_flags,vector<long long int>* p_useful_typed_snps) {
 
 
@@ -358,7 +358,7 @@ vector<char> impute_flags,vector<long long int>* p_useful_typed_snps) {
 	size_t num_total_snps = all_snps.size();
 	char tem[5];
 	sprintf(tem , "%d" , chrom);
-	string OUT_FILE =  out_dir + string(tem) + "/" + last_gene_name;
+	string OUT_FILE =  out_dir + string(tem) + "/" + last_name;
 	
 	// load z-score typed snps
 	vector<zscore_typed_snp> ztyped_snps;

@@ -53,13 +53,13 @@ void init_line_list(string line_list[])
 }
 
 //extract info from given line
-void extract(long long int* pos,string* gene_name,string line)
+void extract(long long int* pos,string* name,string line)
 {
 	//read start pos
 	int index = 0;
 	while(line[index] != '\t' && line[index] != ' ' )
 	{
-		(*gene_name) += line[index];
+		(*name) += line[index];
 		index++;
 	}
 
@@ -155,12 +155,12 @@ bool read_pos_name_alleles(string line , long long int* pos , string* name,strin
 	return true;
 }
 
-void calculate_window(int window_size , long long int window[2],string last_gene_name ,
-				map<string,long long int*> *gene_pos_map)
+void calculate_window(int window_size , long long int window[2],string last_name ,
+				map<string,long long int*> *pos_map)
 {
 
-	long long int l_pos = (*gene_pos_map)[last_gene_name][0];
-	long long int r_pos = (*gene_pos_map)[last_gene_name][1];
+	long long int l_pos = (*pos_map)[last_name][0];
+	long long int r_pos = (*pos_map)[last_name][1];
 	long long int pos = (l_pos + r_pos) / 2;
 	long long int pos1 = pos - (window_size) / 2;
 	if(pos1 < 0)
@@ -214,14 +214,14 @@ int get_chrom(string line)
 	
 }
 
-int split_chrom(string eqtl_path ,long long int chrom[])
+int split_chrom(string Xqtl_path ,long long int chrom[])
 {
-	for(int i = 0;i <= 100;i++)
+	for(int i = 0;i <= 1260;i++)
 	{
 		chrom[i] = 0;
 	}
 	cout << "Scaning xQTL file...\n" ;
-	ifstream fin(eqtl_path.c_str());
+	ifstream fin(Xqtl_path.c_str());
 	string line;
 	getline(fin , line);
 	//erase head

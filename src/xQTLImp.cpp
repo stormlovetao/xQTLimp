@@ -12,9 +12,9 @@
 struct thread_data{
    map<string,long long int>* p_VcfIndex;
    vector<string>* p_VcfFile;
-   map<string,long long int*> *gene_pos_map;
+   map<string,long long int*> *pos_map;
    int chrom; 
-   string eqtl_path; 
+   string Xqtl_path; 
    string ref_file;
    string out_dir;
    long long int start; 
@@ -31,10 +31,10 @@ void *main_process(void *threadarg)
 	my_data = (struct thread_data *) threadarg;
    	map<string,long long int>* p_VcfIndex = my_data -> p_VcfIndex;
    	vector<string>* p_VcfFile = my_data -> p_VcfFile;
-   	map<string,long long int*> *gene_pos_map = my_data -> gene_pos_map;
+   	map<string,long long int*> *pos_map = my_data -> pos_map;
    		
    	string ref_file = my_data -> ref_file; 
-   	string eqtl_path = my_data -> eqtl_path; 
+   	string Xqtl_path = my_data -> Xqtl_path; 
    	string out_dir = my_data -> out_dir;
    	long long int start = my_data -> start; 
    	long long int end = my_data -> end;
@@ -43,7 +43,7 @@ void *main_process(void *threadarg)
 	double maf = my_data -> maf;
 	double lam  = my_data -> lam;
 		
-	ifstream fin(eqtl_path.c_str());
+	ifstream fin(Xqtl_path.c_str());
 	fin.seekg(start);
 	string line;
 	vector<snps> origin_typed_snps;
@@ -64,10 +64,10 @@ void *main_process(void *threadarg)
 	getline(fin,line);
 	string line_list[9];
 	split_line(line_list,line);
-	string gene_name = line_list[1];
-	string last_gene_name;
+	string name = line_list[1];
+	string last_name;
 	record_all(p_origin_typed_snps , line_list[2] , line_list[3] , line_list[4] , line_list[5]);	
-	//record the gene
+	//record the molecular
 	
 	map<long long int , int> m_all_snps ;
 	map<long long int , int> m_typed_snps ;
@@ -77,11 +77,11 @@ void *main_process(void *threadarg)
 		ans values;
 		values.last_sigma_it = NULL;
 		values.weight = NULL;
-		values.yaoyao = 0;
+		values.row = 0;
 		int flag = 0;
 		while(fin.tellg() <= end)
 		{
-			last_gene_name = gene_name;
+			last_name = name;
 			getline(fin,line);
 			if(line == "")
 			{
@@ -89,21 +89,21 @@ void *main_process(void *threadarg)
 			}
 			init_line_list(line_list);
 			split_line(line_list,line);
-			gene_name = line_list[1];
+			name = line_list[1];
 
-			if(last_gene_name != gene_name || 1 == flag)
+			if(last_name != name || 1 == flag)
 			{
 			//calculate window
 				long long int window[2]; 
-				calculate_window(window_size , window , last_gene_name , gene_pos_map);
+				calculate_window(window_size , window , last_name , pos_map);
 			
 			// 1.split origin_typed_snps into typed_snps
 			//and unuseful snps(wrong and special type)
-				filter_snps(ref_file , last_gene_name,p_origin_typed_snps ,
+				filter_snps(ref_file , last_name,p_origin_typed_snps ,
 						 p_typed_snps , p_ignore_snps,window , p_VcfIndex,p_VcfFile); 
-			//2.search gene annotation map and pos file dict to generate 
+			//2.search  annotation map and pos file dict to generate 
 			//.map and .hap vector with .vcf
-				gen_map_hap(ref_file , last_gene_name , p_snp_map , p_hap , window,p_VcfIndex,p_VcfFile);
+				gen_map_hap(ref_file , last_name , p_snp_map , p_hap , window,p_VcfIndex,p_VcfFile);
 			//3.impute process		
 				size_t num_typed_snps = typed_snps.size();
 				size_t num_total_snps = snp_map.size();
@@ -126,10 +126,10 @@ void *main_process(void *threadarg)
 				vector<int>* p_snps_flag = &snps_flag;	
 				values = zgenbt(p_maf_snps , maf , lam , p_snps_flag ,typed_snps, snp_map , convert_flags , impute_flags , 
 											hap , p_useful_typed_snps,
-				p_m_all_snps,p_m_typed_snps,values.last_sigma_it,values.yaoyao);
+				p_m_all_snps,p_m_typed_snps,values.last_sigma_it,values.row);
 
-				impz(p_maf_snps , p_ignore_snps , chrom , out_dir , last_gene_name , p_snps_flag , values.weight ,typed_snps, snp_map , impute_flags ,p_useful_typed_snps );	
-				//final.start new recorder and record gene_name snp
+				impz(p_maf_snps , p_ignore_snps , chrom , out_dir , last_name , p_snps_flag , values.weight ,typed_snps, snp_map , impute_flags ,p_useful_typed_snps );	
+				//final.start new recorder
 				clean_all_vector(p_maf_snps , p_origin_typed_snps , p_typed_snps ,
 								p_ignore_snps , p_snp_map , p_hap ,p_useful_typed_snps , p_snps_flag);
 				
@@ -148,7 +148,7 @@ void *main_process(void *threadarg)
 		} 
 		fin.close();
 		
-		for(int i = 0;i < (values.yaoyao);i++)
+		for(int i = 0;i < (values.row);i++)
 		{
 			free(values.last_sigma_it[i]);
 		}
@@ -163,8 +163,8 @@ void *main_process(void *threadarg)
 int main(int argc , char *argv[]) 
 {
 	char opt;
-	char* Gene_annotation;
-	char* Eqtl_path;
+	char* Annotation;
+	char* XQTL_path;
 	char* Vcf_prefix;
 	char* Out;
 	char* BATCH = NULL;
@@ -205,10 +205,10 @@ int main(int argc , char *argv[])
 				break;
 
 			case 'm': // prefix used in gen_beta
-				Gene_annotation = (char *) strdup(optarg);
+				Annotation = (char *) strdup(optarg);
 				break;
 			case 'x': // snp mapping file
-				Eqtl_path = (char *) strdup(optarg);
+				XQTL_path = (char *) strdup(optarg);
 				break;
 			case 'v': // typed snp file
 				Vcf_prefix = (char *) strdup(optarg);
@@ -246,8 +246,8 @@ int main(int argc , char *argv[])
 		counter++;
 	} while (next_option != -1);
 	
-	string gene_annotation = string(Gene_annotation);
-	string eqtl_path = string(Eqtl_path);
+	string annotation = string(Annotation);
+	string Xqtl_path = string(XQTL_path);
 	string vcf_prefix = string(Vcf_prefix);
 	string out = string(Out);
 	int batch = 1;
@@ -291,15 +291,15 @@ int main(int argc , char *argv[])
 		window_size = int(atoi(WIN));
 	}
 
-	//load gene_pos_map
+	//load pos_map
 	map<string,long long int*> pos1;
-	map<string,long long int*> *gene_pos_map = &pos1; 
+	map<string,long long int*> *pos_map = &pos1; 
 	cout << "Reading molecular annotation file..." << endl;	
-	load_gene_pos_map(gene_annotation , gene_pos_map);	
+	load_pos_map(annotation , pos_map);	
 	cout << "Done!" << endl;
 	//seperate chrom
 	long long int chrom[1261];
-	int chrom_num = split_chrom(eqtl_path , chrom);
+	int chrom_num = split_chrom(Xqtl_path , chrom);
 	cout << "The total number of chromosomes in the file is " << chrom_num << endl;
 
 	make_output_dir(chrom_num , Out);
@@ -332,7 +332,7 @@ int main(int argc , char *argv[])
 			
 		vector<long long int> batch_bonder;
 		vector<long long int>* p_batch_bonder = &batch_bonder;
-		int real_batch = travel_eqtl(start ,end ,eqtl_path ,p_batch_bonder , batch);
+		int real_batch = travel_Xqtl(start ,end ,Xqtl_path ,p_batch_bonder , batch);
 				
 		///////////////////////////////////////// 
 		
@@ -351,10 +351,10 @@ int main(int argc , char *argv[])
 		for(int ii = 0;ii < real_batch;ii++)
 		{
 			td[ii].bin_sem = &bin_sem; 
-			td[ii].gene_pos_map = gene_pos_map;
+			td[ii].pos_map = pos_map;
 			td[ii].p_VcfIndex =  p_VcfIndex;
 			td[ii].p_VcfFile =  p_VcfFile;
-			td[ii].eqtl_path = eqtl_path;
+			td[ii].Xqtl_path = Xqtl_path;
 			td[ii].ref_file = ref_file;
 			td[ii].start = batch_bonder[2 * ii];
 			td[ii].end = batch_bonder[2 * ii + 1];

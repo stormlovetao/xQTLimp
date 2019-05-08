@@ -23,9 +23,9 @@ using namespace std;
 
 
 bool gzLoadVcfFile(char* tem , const char* gzfn , map<string,long long int>* p_VcfIndex ,vector<string>* p_VcfFile );
-void load_gene_pos_map(string gene_annotation , map<string,long long int*> *gene_pos_map);
+void load_pos_map(string annotation , map<string,long long int*> *pos_map);
 void record_all(vector<snps> *p_origin_typed_snps , string  pos , string ref, string alt  ,   string z);
-void filter_snps(string file_name , string last_gene_name , vector<snps> *p_origin_typed_snps ,
+void filter_snps(string file_name , string last_name , vector<snps> *p_origin_typed_snps ,
 					vector<typed_snp> *p_typed_snps , 
 						vector<snps> *p_ignore_snps,
 							 long long int window[2],
@@ -33,12 +33,12 @@ void filter_snps(string file_name , string last_gene_name , vector<snps> *p_orig
   						 vector<string>* p_VcfFile);
 
 void read_hap(string line,vector<string>* p_hap);
-void gen_map_hap(string ref_file , string last_gene_name ,  vector<ref_snp> *p_snp_map , 
+void gen_map_hap(string ref_file , string las_name ,  vector<ref_snp> *p_snp_map , 
 			vector<string>*p_hap , long long int window[2],
 			map<string,long long int>* p_VcfIndex,
   						 vector<string>* p_VcfFile);
-int travel_eqtl(long long int start , long long int end ,
-			string eqtl_path ,vector<long long int>* p_batch_bonder ,int batch);
+int travel_Xqtl(long long int start , long long int end ,
+			string Xqtl_path ,vector<long long int>* p_batch_bonder ,int batch);
 
 #endif
 

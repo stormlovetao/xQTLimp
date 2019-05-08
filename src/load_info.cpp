@@ -78,10 +78,10 @@ bool gzLoadVcfFile(char* tem , const char* gzfn , map<string,long long int>* p_V
 	return true;
 }
 
-//record postions of all gene
-void load_gene_pos_map(string gene_annotation , map<string,long long int*> *gene_pos_map)
+//record postions of all molecular
+void load_pos_map(string annotation , map<string,long long int*> *pos_map)
 {
-	ifstream fin(gene_annotation.c_str());
+	ifstream fin(annotation.c_str());
 	string line;
 	getline(fin,line);
 	getline(fin,line);
@@ -89,12 +89,12 @@ void load_gene_pos_map(string gene_annotation , map<string,long long int*> *gene
 	{
 		//pos0:start pos  pos1:end pos
 		long long int* pos = (long long int*)malloc(2 * sizeof(long long int));
-		string gene_name = "";
-		string* cur_gene_name = &gene_name;
+		string name = "";
+		string* cur_name = &name;
 		//extract info from the line
-		extract(pos , cur_gene_name ,line);
+		extract(pos , cur_name ,line);
 		//record it into map
-		(*gene_pos_map)[gene_name] = pos;
+		(*pos_map)[name] = pos;
 		getline(fin,line);
 	}
 	fin.close();
@@ -113,7 +113,7 @@ void record_all(vector<snps> *p_origin_typed_snps , string  pos , string ref, st
 	
 }
 
-void filter_snps(string file_name , string last_gene_name , vector<snps> *p_origin_typed_snps ,
+void filter_snps(string file_name , string last_name , vector<snps> *p_origin_typed_snps ,
 					vector<typed_snp> *p_typed_snps , 
 						vector<snps> *p_ignore_snps,
 							 long long int window[2],
@@ -240,7 +240,7 @@ void read_hap(string line,vector<string>* p_hap)
 	(*p_hap).push_back(hap_format);
 }
 
-void gen_map_hap(string ref_file , string last_gene_name ,  vector<ref_snp> *p_snp_map , 
+void gen_map_hap(string ref_file , string last_name ,  vector<ref_snp> *p_snp_map , 
 			vector<string>*p_hap , long long int window[2],
 			map<string,long long int>* p_VcfIndex,
   						 vector<string>* p_VcfFile)
@@ -307,23 +307,23 @@ void gen_map_hap(string ref_file , string last_gene_name ,  vector<ref_snp> *p_s
 	}
 	fin.close();
 }
-int travel_eqtl(long long int start , long long int end ,
-			string eqtl_path ,vector<long long int>* p_batch_bonder , int batch)
+int travel_Xqtl(long long int start , long long int end ,
+			string Xqtl_path ,vector<long long int>* p_batch_bonder , int batch)
 {
 	int real_batch = 0;
 	cout << "Scaning xQTL file...\n";
-	ifstream fin(eqtl_path.c_str());
+	ifstream fin(Xqtl_path.c_str());
 	string line;
 	fin.seekg(start);
 	int counter = 1;
 	getline(fin,line);
 	string line_list[9];
 	split_line(line_list,line);
-	string gene_name = line_list[1];
-	string last_gene_name;
+	string name = line_list[1];
+	string last_name;
 	while(fin.tellg() != end)
 	{
-		last_gene_name = gene_name;
+		last_name = name;
 		
 		getline(fin,line);
 		if(line == "")
@@ -332,9 +332,9 @@ int travel_eqtl(long long int start , long long int end ,
 		}
 		init_line_list(line_list);
 		split_line(line_list,line);
-		gene_name = line_list[1];
+		name = line_list[1];
 		
-		if(gene_name == last_gene_name)
+		if(name == last_name)
 		{
 			
 		}
@@ -348,7 +348,7 @@ int travel_eqtl(long long int start , long long int end ,
 	cout <<  counter  << " records in total\n";
 	///////////////////////////////////////////////////
 	
-	ifstream fin1(eqtl_path.c_str());
+	ifstream fin1(Xqtl_path.c_str());
 	int batch_size = counter / batch;
 
 	if(counter % batch == 0)
@@ -363,17 +363,17 @@ int travel_eqtl(long long int start , long long int end ,
 	(*p_batch_bonder).push_back(start);
 		
 	fin1.seekg(start);
-	int gene_num = 1;
+	int num = 1;
 	getline(fin1,line);
 	string line_list1[9];
 	split_line(line_list1,line);
-	gene_name = line_list1[1];
+	name = line_list1[1];
 	long long int pos;
 	int b = 0;
 	long long int position = 0;
 	while(true)
 	{
-		last_gene_name = gene_name;
+		last_name = name;
 		if(fin1.tellg() == end)
 		{
 			pos = fin1.tellg();
@@ -385,16 +385,16 @@ int travel_eqtl(long long int start , long long int end ,
 		getline(fin1 , line);
 		init_line_list(line_list1);
 		split_line(line_list1,line);
-		gene_name = line_list1[1];
+		name = line_list1[1];
 		
-		if(gene_name == last_gene_name)
+		if(name == last_name)
 		{
 			
 		}
 		else
 		{
-			gene_num++;
-			if((gene_num - 1) % batch_size == 0)
+			num++;
+			if((num - 1) % batch_size == 0)
 			{
 			    b++;
 				(*p_batch_bonder).push_back(position);
