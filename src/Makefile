@@ -24,6 +24,7 @@ load_info.o: load_info.cpp
 comp.o: comp.cpp
 	$(CPP) -c comp.cpp -o comp.o $(CXXFLAGS) -std=c++11
 
+
 clean:
 	@echo "Removing objects..."
 	rm -f *.o
