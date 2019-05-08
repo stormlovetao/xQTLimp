@@ -1,7 +1,6 @@
 /*
 ###############################################################################################
-## This file provide basic functions for imputation process ,including matrix operations and operations on LD
-## This file is adapted from work of Bogdan Pasaniuc et. al [1]. 
+## This file is adapted from work of Bogdan Pasaniuc et. al [1], and mainly provides matrix operation functions, such as SVD decomposition.
 ## Reference: [1]. Pasaniuc, Bogdan, et al. "Fast and accurate imputation of summary statistics enhances evidence of functional enrichment." Bioinformatics 30.20 (2014): 2906-2914.
 ################################################################################################
 */
