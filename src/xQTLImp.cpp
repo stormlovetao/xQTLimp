@@ -204,28 +204,28 @@ int main(int argc , char *argv[])
 				print_usage (stdout, 0);
 				break;
 
-			case 'm': // prefix used in gen_beta
+			case 'm': // Molecular annotation file
 				Annotation = (char *) strdup(optarg);
 				break;
-			case 'x': // snp mapping file
+			case 'x': // xQTL statistic summary
 				XQTL_path = (char *) strdup(optarg);
 				break;
-			case 'v': // typed snp file
+			case 'v': // genome reference panel, such as 1000G VCF
 				Vcf_prefix = (char *) strdup(optarg);
 				break;
-			case 'o': // output file name
+			case 'o': // output folder path
 				Out = (char *) strdup(optarg);
 				break;
-			case 't':
+			case 't': // threads number， 1 in default
 				BATCH = (char*)strdup(optarg);
 				break;	
-			case 'f':
+			case 'f': // MAF threshold for variants in reference panel, 0.01 in default
 				MAF = (char*)strdup(optarg);
 				break;
-			case 'l':
+			case 'l': // lambda value, 0.1 in default
 				LAMBDA = (char*)strdup(optarg);
 				break;
-			case 'w':
+			case 'w': // window size in total(upstream and downstream of TSS), 500kb in default
 				WIN = (char*)strdup(optarg);
 				break;
 
@@ -370,12 +370,12 @@ int main(int argc , char *argv[])
            		cout << "pthread_create error: error_code=" << ret << endl;
        		}	 
 		}
-	//防止循环结束时子程序还没有结束 
+	// To make sure all sub-threads are finished in each chromosome, because they share the same memory of the reference panel
 		for(int j = 0;j < real_batch;j++)
     	{
-        	sem_wait(&bin_sem);    //循环等待n次，相当于线程都执行完了
+        	sem_wait(&bin_sem);    
     	}
-    	sem_destroy(&bin_sem);        //释放信号量
+    	sem_destroy(&bin_sem);        //release sem
     	
 		printf("the %dst chrom finished\n",chrom);
 	}
