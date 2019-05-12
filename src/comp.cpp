@@ -324,13 +324,13 @@ void print_usage (FILE * stream, int exit_code)
 	fprintf (stream,
 	"-h --help\t\t Display this usage information. \n"
 	"-x --xQTL\t\t The file path of xQTL summary statistics.\n"
-	"-m --molecule\t The file path of molecule annotation file.\n"
+	"-m --molecule\t\t The file path of molecule annotation file.\n"
 	"-v --VCF files\t\t The folder path of genome reference panel, such as 1000G VCF files.\n"
 	"-o --output\t\t The folder path of output results.\n"
-	"-t --num_threads\t\t Number of threads, 1 in default\n"
+	"-t --num_threads\t Number of threads, 1 in default\n"
 	"-f --MAF_cutoff\t\t Minimum MAF threshold for variants in genome reference panel, 0.1 in default.\n"
-	"-l --lambda_value\t\t A constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default \n"
-	"-w --window_size \t\t Window size N, +-N/2 apart from molecular start pos, 500Kb in default.\n");
+	"-l --lambda_value\t A constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default \n"
+	"-w --window_size \t Window size N, +-N/2 apart from molecular start pos, 500Kb in default.\n");
 
 	exit (exit_code);
 }
