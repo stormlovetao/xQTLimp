@@ -74,11 +74,12 @@ This file gives summary statistics associated with pairs of variants and molecul
 * The coordinates of variants and molecules should be in same genome build (e.g. hg19).
 * The variant positions associated with each molecule should be in order.
 * The Z statistic should be computed as the effect of the same type of allele (Ref or Alt) for all data entries (i.e. The effect allele is Ref allele or Alt allele).  And the effect allele of imputed variants will be the same type of effect allele as the inputs.
-* The sign of Z statistics will be converted by xQTLImp if the user provided <ref, alt> alleles are in opposite with that in reference panel.
+* The sign of Z statistics will be converted by xQTLImp if the user provided <ref, alt> alleles are in opposite to that in reference panel.
 * Data entries (input lines) would not be used for imputation if xQTLImp cannot locate the variant on reference panel, but they will still be written into outputs without loss of information. 
 
 
 ### xQTLImp parameters：
+The parameters can be specified by short options (e.g. -h) or long options (e.g. --help), which have same effect. Please see the candidate parameters and explanations as follows:
 ```bash
 xQTLImp
 -h, --help           null           # null, to display this usage.
@@ -108,13 +109,13 @@ mkdir sample_output    # creat a new folder for output
 -w 500000
 ```
 ### xQTLImp output file format
-*N* subfolders will be created in the output folder, and each folder contains the imputation results on each chromosome (*N* = number of chromosomes).</br> Imputation results associated with each molecule are seperately saved under each chromosome subfolder (for parallele mode consideration), and user can run the script ./scripts/merge.py to merge them into one union file for each chromosome.</br>
+*N* files corresponding with imputation results of *N* chromosomes will be created in the output folder.</br> 
 #### Example:
 `Chr` | `Molecular_ID` | `Molecular_Start` | `Molecular_End` | `Variant_ID` | `Variant_pos` | `Variant_Ref` | `Variant_Alt` | `Z-Statistic` | `R2pred` | `Imputation_flag`
 --|--|--|--|--|--|--|--|--|--|--
-1 | 521369 | 523833 | ENSG00000231709.1 | 1_13417_C_CGAGA | 13417 | C | CGAGA | -0.338210 | 0.98 | 1
-1 | 521369 | 523833 | ENSG00000231709.1 | 1_17559_G_C | 17559 | G | C | 1.605512 | 1.000000 | 0
-1 | 521369 | 523833 | ENSG00000231709.1 | 1_54421_A_G | 54421 | A | G | 1.069012 | 1.000000 | 0
+1 | ENSG00000231709.1 | 521369 | 523833 | 1_13417_C_CGAGA | 13417 | C | CGAGA | -0.338210 | 0.98 | 1
+1 | ENSG00000231709.1 | 521369 | 523833 | 1_17559_G_C | 17559 | G | C | 1.605512 | 1.000000 | 0
+1 | ENSG00000231709.1 | 521369 | 523833 | 1_54421_A_G | 54421 | A | G | 1.069012 | 1.000000 | 0
 ......
 
 ## Reference
