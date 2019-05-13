@@ -80,14 +80,14 @@ This file gives summary statistics associated with pairs of variants and molecul
 ### xQTLImp parameters：
 ```bash
 xQTLImp
--h, --help                          # Display this usage.
+-h, --help           null           # null, to display this usage.
 -x, --xQTL           file_path      # string, the file path of xQTL summary statistics.
 -m, --molecule       file_path      # string, the file path of molecule annotation file.
 -v, --VCF            folder_path    # string, the folder path of genome reference panel, such as 1000G VCF files.
 -o, --output         folder_path    # string, the folder path of output results. 
 -t, --num_threads    num_threads    # int, number of threads, 1 in default.
 -f, --MAF_cutoff     MAF_cutoff     # double, minimum MAF threshold for variants in genome reference panel, 0.01 in default.
--l, --lambda_value   lambda_value   # double, a constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default 
+-l, --lambda_value   lambda_value   # double, a constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default. 
 -w, --window_size    window_size    # int, Window size N, +-N/2 apart from molecular start pos, 500Kb in default.
 ```
 
