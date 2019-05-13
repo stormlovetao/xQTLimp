@@ -61,7 +61,6 @@ ENSG00000237613.2	| 34554	| 36081
 
 #### 3. xQTL summary statistics
 This file gives summary statistics associated with pairs of variants and molecular traits. The xQTL file should start with a line that contains column names – chromosome , molecular_ID, variant_pos , ref_allele , alt_allele , z_statistics ...(optional columns),followed by lines of data entries. Each field of data entries must be separated by white spaces. </br>
-*Note:* xQTLImp only handle cis-xQTL associations, so variant and molecule should be on the some chromosome. </br>
 ##### Example:
 `chromosome` | `molecular_ID` | `variant_pos` | `ref_allele` | `alt_allele` | `z_statistics`
 --|--|--|--|--|--
@@ -69,6 +68,13 @@ This file gives summary statistics associated with pairs of variants and molecul
 1 | ENSG00000227232.4 | 17559 | A | AGCC | 2.6
 1 | ENSG00000227232.4 | 54421 | G | A    | -1.0
 ......</br>
+
+*Notes:* </br>
+* xQTLImp only handle cis-xQTL associations because of the nature of LD, so variant and molecule should be on the some chromosome. </br>
+* The coordinates of variants and molecules should be in same genome build (e.g. hg19).
+* The variant positions associated with each molecule should be in order.
+* The Z statistic should be computed as the effect of the same type of allele (Ref or Alt) for all data entries (i.e. The effect allele is Ref allele or Alt allele).  And the effect allele of imputed variants will be the same type of effect allele as the inputs.
+* The sign of Z statistics will be converted if the user provided <ref, alt> alleles are in opposite with that in reference panel.
 
 
 ### xQTLImp parameters：
