@@ -80,17 +80,16 @@ This file gives summary statistics associated with pairs of variants and molecul
 ### xQTLImp parameters：
 ```bash
 xQTLImp
--x file_path      # string, the file path of xQTL summary statistics.
--m file_path      # string, the file path of molecule annotation file.
--v folder_path    # string, the folder path of genome reference panel, such as 1000G VCF files.
--o folder_path    # string, the folder path of output results. 
--t num_threads    # int, number of threads, 1 in default.
--f MAF_cutoff     # double, the cutoff of minor allele frequency in genome reference panel, 0.01 in default.
--l lambda_value   # double, a constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default 
--w window_size    #int, The range of results, 500kb in default
--h                # Print this usage.
+-h, --help                          # Display this usage.
+-x, --xQTL           file_path      # string, the file path of xQTL summary statistics.
+-m, --molecule       file_path      # string, the file path of molecule annotation file.
+-v, --VCF            folder_path    # string, the folder path of genome reference panel, such as 1000G VCF files.
+-o, --output         folder_path    # string, the folder path of output results. 
+-t, --num_threads    num_threads    # int, number of threads, 1 in default.
+-f, --MAF_cutoff     MAF_cutoff     # double, minimum MAF threshold for variants in genome reference panel, 0.01 in default.
+-l, --lambda_value   lambda_value   # double, a constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default 
+-w, --window_size    window_size    # int, Window size N, +-N/2 apart from molecular start pos, 500Kb in default.
 ```
-
 
 ### Running sample data
 The sample data is generated from [GTEx](https://gtexportal.org/home/index.html) cis-eQTL results from Brain Amygdala downloaded in January 2019. We selected 49 genes with all associated variants (Pvalue < 1) from chromosome 1.
