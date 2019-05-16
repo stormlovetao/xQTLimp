@@ -292,15 +292,15 @@ int main(int argc , char *argv[])
 	}
 
 	//load pos_map
+	cout << "Loading molecular annotation file ... ";
 	map<string,long long int*> pos1;
 	map<string,long long int*> *pos_map = &pos1; 
-	cout << "Reading molecular annotation file..." << endl;	
 	load_pos_map(annotation , pos_map);	
-	cout << "Done!" << endl;
+	 cout << "Done!" << endl;	
 	//seperate chrom
 	long long int chrom[1261];
 	int chrom_num = split_chrom(Xqtl_path , chrom);
-	cout << "The total number of chromosomes in the file is " << chrom_num << endl;
+	cout << chrom_num << " chromosomes detected!" << endl;
 
 	make_output_dir(chrom_num , Out);
 
@@ -315,7 +315,7 @@ int main(int argc , char *argv[])
 		}
 			
 		//load pos_file_map
-		printf("reading vcf file of NO %d chrom......\n",i);
+		printf("Loading reference VCF file of chromosome No.%d ... ",i);
 		map<string,long long int> VcfIndex;
 		map<string,long long int>* p_VcfIndex = &VcfIndex;
 		vector<string> VcfFile;
@@ -325,8 +325,7 @@ int main(int argc , char *argv[])
 		sprintf(tem , "%d" , i);
 		string ref_file = vcf_prefix;
 		gzLoadVcfFile(tem , ref_file.c_str() ,p_VcfIndex ,p_VcfFile );
-		cout << "VcfFile loaded" << endl;
-				
+		cout << "Done!\n";	
 		
 		/////////////////////////////////////////
 			
@@ -347,7 +346,8 @@ int main(int argc , char *argv[])
 		struct thread_data td[real_batch];
 
 		int chrom = i;
-		printf("Imputing the %dst chrom......\n",chrom);
+		printf("Performing xQTL imputation on chromosome No.%d ...\n",chrom);
+		printf("Partitioning into %d threads ... \n" , batch);
 		for(int ii = 0;ii < real_batch;ii++)
 		{
 			td[ii].bin_sem = &bin_sem; 
@@ -377,14 +377,15 @@ int main(int argc , char *argv[])
     	}
     	sem_destroy(&bin_sem);        //release sem
     	
-		printf("the %dst chrom finished\n",chrom);
+		printf("Imputation on chromosome No.%d finished!\n",chrom);
 	}
 	
-	printf("organizing files......\n");
+	printf("Finalizing output files ... ");
 	
 	organize_files(chrom_num , out , pos1);
+	cout << "Done!" << endl;
 	
-	cout << "finish imputation\n";
+	cout << "Imputation processes have been Successfully Finished!\n";
 	
 	return 0;
 }

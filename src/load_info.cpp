@@ -311,7 +311,6 @@ int travel_Xqtl(long long int start , long long int end ,
 			string Xqtl_path ,vector<long long int>* p_batch_bonder , int batch)
 {
 	int real_batch = 0;
-	cout << "Scaning xQTL file...\n";
 	ifstream fin(Xqtl_path.c_str());
 	string line;
 	fin.seekg(start);
@@ -345,7 +344,6 @@ int travel_Xqtl(long long int start , long long int end ,
 	}
 
 	fin.close();
-	cout <<  counter  << " records in total\n";
 	///////////////////////////////////////////////////
 	
 	ifstream fin1(Xqtl_path.c_str());

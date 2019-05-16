@@ -220,7 +220,6 @@ int split_chrom(string Xqtl_path ,long long int chrom[])
 	{
 		chrom[i] = 0;
 	}
-	cout << "Scaning xQTL file...\n" ;
 	ifstream fin(Xqtl_path.c_str());
 	string line;
 	getline(fin , line);
