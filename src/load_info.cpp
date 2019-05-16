@@ -317,7 +317,7 @@ int travel_Xqtl(long long int start , long long int end ,
 	fin.seekg(start);
 	int counter = 1;
 	getline(fin,line);
-	string line_list[9];
+	string line_list[100];
 	split_line(line_list,line);
 	string name = line_list[1];
 	string last_name;
@@ -365,7 +365,7 @@ int travel_Xqtl(long long int start , long long int end ,
 	fin1.seekg(start);
 	int num = 1;
 	getline(fin1,line);
-	string line_list1[9];
+	string line_list1[100];
 	split_line(line_list1,line);
 	name = line_list1[1];
 	long long int pos;
