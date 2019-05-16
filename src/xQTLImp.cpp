@@ -62,7 +62,7 @@ void *main_process(void *threadarg)
 	 
 	//start extract
 	getline(fin,line);
-	string line_list[9];
+	string line_list[100];
 	split_line(line_list,line);
 	string name = line_list[1];
 	string last_name;
