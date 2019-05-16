@@ -31,7 +31,7 @@ for chr in {1..22} ; do
     wget $prefix$chr$suffix  $prefix$chr$suffix.tbi ;
 done
 ```
-The genotype reference VCF files should be separated by chromosomes, and named in the format of 'chr.*N*.XXX.vcf.gz' within a folder. *N* represents for chromosome number, for example 1~26 (X->23, Y->24, XY (Pseudo-autosomal region of X) ->25, MT (Mitochondrial) ->26); XXX represents for any user defined string. Other domain should be freezed in required format.  </br>
+The genotype reference VCF files should be separated by chromosomes, and named in the format of 'chr.*N*.XXX.vcf.gz' within a folder. *N* represents for chromosome number, for example 1~26 (X->23, Y->24, XY (Pseudo-autosomal region of X) ->25, MT (Mitochondrial) ->26); XXX represents for any user defined string. Other domain should be freezed in required format. See *Tricks* if you do not want to change your file name. </br>
 </br>
 
 *Notes:* To get better performance and accuracy, we recommend the users to preprocess the genotype reference VCF files. For example, keeping only samples of EUR population if the input xQTL statistics are from subjects of European ancestry, or/and filtering rare and non-biallelic variants since most of the current xQTL studies still focus on common variants due to limited sample size. The example source codes with *[VCFtools](https://github.com/vcftools/vcftools)* are as follows:
@@ -133,3 +133,13 @@ During the implementation of xQTLImp, we referenced the following works:
 xcode-select --install
 ```
 
+## Tricks
+If you do not want to rename the VCF file names of the reference panel, you can simply creat softlinks for them in our required format. For example:
+```bash
+# Source VCF files are in the path of:
+${source_vcf_path}/EUR.MAF01.Biallele.chr[1..22].PASS_only.vcf.gz
+# And you can create softlinks for those VCF files in a new path, and use the new folder path for input:
+for chr in {1..22} ; do
+	ln -s ${source_vcf_path}/EUR.MAF01.Biallele.chr${chr}.PASS_only.vcf.gz ${soft_links_path}/chr.${chr}.EUR_MAF01_Biallele_PASS_only.vcf.gz
+done
+```
