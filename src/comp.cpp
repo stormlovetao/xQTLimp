@@ -298,7 +298,7 @@ void organize_files(int chrom_num , string out , map<string,long long int*> pos_
 				long long int end = pos_map[string(ent -> d_name)][1];
 				while(line != "")
 				{
-				    fprintf(fp, "%s %lld %lld %s %s\n"  ,tem ,  start , end , ent -> d_name , line.c_str());
+				    fprintf(fp, "%s %lld %lld %s %s\n"  ,tem , ent -> d_name , start , end , line.c_str());
 				    getline(fin , line);
 				}
 				fin.close();
