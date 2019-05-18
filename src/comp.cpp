@@ -57,6 +57,7 @@ void extract(long long int* pos,string* name,string line)
 {
 	//read start pos
 	int index = 0;
+	int len = line.length();
 	while(line[index] != '\t' && line[index] != ' ' )
 	{
 		(*name) += line[index];
@@ -159,6 +160,11 @@ void calculate_window(int window_size , long long int window[2],string last_name
 				map<string,long long int*> *pos_map)
 {
 
+	if((*pos_map).count(last_name) == 0)
+	{
+		cout << "Can't find record about "+ last_name+ " in annotation file!\n";
+		exit(0);
+	}
 	long long int l_pos = (*pos_map)[last_name][0];
 	long long int r_pos = (*pos_map)[last_name][1];
 	long long int pos = (l_pos + r_pos) / 2;
@@ -208,6 +214,19 @@ int get_chrom(string line)
 		chrom += line[index];
 		index++;
 	}
+	for(int i = 0;i < chrom.length();i++)
+	{
+		if(chrom[i] >= '0' && chrom[i] <= '9')
+		{
+
+		}
+		else
+		{
+			cout << "Unrecognized chromosome number " + chrom  << " in xQTL file"<< endl;
+			cout << "Chromosomes should be named by number." << endl;
+			exit(0);
+		}
+	}
 
 	int ans = atoi(chrom.c_str());
 	return ans;
@@ -221,21 +240,36 @@ int split_chrom(string Xqtl_path ,long long int chrom[])
 		chrom[i] = 0;
 	}
 	ifstream fin(Xqtl_path.c_str());
+	if(fin.fail())
+	{
+		cout << "Can't find xQTL file\n";
+		exit(0);
+	}
 	string line;
-	getline(fin , line);
+	if(!getline(fin , line))
+	{
+		cout << "Empty xQTL file!\n";
+		exit(0);
+	}
 	//erase head
 	chrom[0] = fin.tellg();
 	int current_chrom = 1;
 	long long int pos = 0;
+	int flag = 0;
 	while(true)
 	{
 		pos = fin.tellg();
 		getline(fin , line);
 		if(line == "")
 		{
+			if(!flag)
+			{
+				return 0;
+			}
 			chrom[current_chrom] = pos;
 			break;
 		}
+		flag  = 1;
 		int now_chrom = get_chrom(line);
 		if(current_chrom == now_chrom)
 		{
@@ -244,7 +278,7 @@ int split_chrom(string Xqtl_path ,long long int chrom[])
 		else
 		{
 			chrom[current_chrom] = pos;
-			current_chrom++;	
+			current_chrom = now_chrom;	
 		} 
 	}
 		
@@ -253,29 +287,41 @@ int split_chrom(string Xqtl_path ,long long int chrom[])
 	
 }
 
-void make_output_dir(int chrom_num , char *Out)
+void make_output_dir(int chrom_num , char *Out , int chr)
 {
 	string path = string(Out);
 	char tem[10];
-	for(int i = 1;i <= chrom_num;i++)
+	if(chr != -1)
 	{
 		string new_path = path;
-		sprintf(tem , "%d" , i);
-		string new_path1 = (new_path + string(tem));
+		sprintf(tem , "%d" , chr);
+		string new_path1 = (new_path + '.' + string(tem));
 		mkdir(new_path1.c_str() , 0777);	
+			
 	}
+	else
+	{
+		for(int i = 1;i <= chrom_num;i++)
+		{
+			string new_path = path;
+			sprintf(tem , "%d" , i);
+			string new_path1 = (new_path + '.' + string(tem));
+			mkdir(new_path1.c_str() , 0777);	
+		}
+
+
+	}
+
 	
 }
 
-void organize_files(int chrom_num , string out , map<string,long long int*> pos_map)
+void organize_files(int chrom , string out , map<string,long long int*> pos_map)
 {
 	
-	for(int i = 1;i <= chrom_num;i++)
-	{
 		string new_path = out;
 		char tem[10];
-		sprintf(tem , "%d" , i);
-		string new_path1 = out + string(tem) + "/";
+		sprintf(tem , "%d" , chrom);
+		string new_path1 = out + '.' + string(tem) + "/";
 		string out_file = out + "chr"+ string(tem) + "_zscores.txt";
 	//	cout << out_file << endl;
 		FILE* fp = fopen(out_file.c_str() , "w");
@@ -313,7 +359,7 @@ void organize_files(int chrom_num , string out , map<string,long long int*> pos_
 		fclose(fp);
 		rmdir(new_path1.c_str());
 
-	}
+
 
 }
 
@@ -329,6 +375,7 @@ void print_usage (FILE * stream, int exit_code)
 	"-t --num_threads\t Number of threads, 1 in default\n"
 	"-f --MAF_cutoff\t\t Minimum MAF threshold for variants in genome reference panel, 0.01 in default.\n"
 	"-l --lambda_value\t A constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default \n"
+	"-c --chr\t\t Only impute the chromosome user specified\n"
 	"-w --window_size \t Window size N, +-N/2 apart from molecular start pos, 500Kb in default.\n");
 
 	exit (exit_code);

@@ -924,13 +924,13 @@ double get_freq(const vector<string>& haps, size_t snp_idx) {
 }
 
 // compute the h frequency of two snps, specified by snp_idx1, snp_idx2
-double get_h_freq(const vector<string>& haps, 
+double get_h_freq(const vector<string>* haps, 
 			size_t snp_idx1, size_t snp_idx2) {
 	double freq = 0.0;
-	size_t nhaps = haps[0].size();
+	size_t nhaps = (*haps)[0].size();
 	size_t i;
 	for(i = 0 ; i < nhaps; i++) {
-		if(haps[snp_idx1][i] == '1' && haps[snp_idx2][i] == '1') {
+		if((*haps)[snp_idx1][i] == '1' && (*haps)[snp_idx2][i] == '1') {
 			freq += 1.0;
 		}
 	}

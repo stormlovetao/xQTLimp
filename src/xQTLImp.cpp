@@ -171,8 +171,9 @@ int main(int argc , char *argv[])
 	char* MAF = NULL;
 	char* LAMBDA = NULL;
 	char* WIN = NULL;
+	char* CHR = NULL;
 
-	const char *const short_options = "hx:m:v:o:t:f:l:w:";
+	const char *const short_options = "hx:m:v:o:t:f:l:w:c:";
 	const struct option long_options[] = {
 	{"help", 0, NULL, 'h'},
 	{"xQTL", 1, NULL, 'x'},
@@ -183,6 +184,7 @@ int main(int argc , char *argv[])
 	{"MAF_cutoff", 1, NULL, 'f'}, 
 	{"lambda", 1, NULL, 'l'},
 	{"window_size", 1, NULL, 'w'},
+	{"chr",1,NULL,'c'},
 	{NULL, 0, NULL, 0 }
 	};
 
@@ -228,6 +230,9 @@ int main(int argc , char *argv[])
 			case 'w': // window size in total(upstream and downstream of TSS), 500kb in default
 				WIN = (char*)strdup(optarg);
 				break;
+			case 'c': // chrom
+				CHR = (char*)strdup(optarg);
+				break;
 
 			case '?':
 				print_usage (stdout, 1);
@@ -251,6 +256,7 @@ int main(int argc , char *argv[])
 	string vcf_prefix = string(Vcf_prefix);
 	string out = string(Out);
 	int batch = 1;
+	int chr = -1;
 	double maf = 0.01;
 	double lam = 0.1;
 	int window_size = 500000;
@@ -291,6 +297,16 @@ int main(int argc , char *argv[])
 		window_size = int(atoi(WIN));
 	}
 
+
+	if(CHR == NULL)
+	{
+		chr = -1;
+	}
+	else
+	{
+		chr = int(atoi(CHR));
+	}
+
 	//load pos_map
 	cout << "Loading molecular annotation file ... ";
 	map<string,long long int*> pos1;
@@ -302,10 +318,21 @@ int main(int argc , char *argv[])
 	int chrom_num = split_chrom(Xqtl_path , chrom);
 	cout << chrom_num << " chromosomes detected!" << endl;
 
-	make_output_dir(chrom_num , Out);
+	make_output_dir(chrom_num , Out , chr);
 
 	for(int i = 1;i <= chrom_num;i++)
 	{
+		if(chr != -1)
+		{
+			if(chr == i)
+			{
+				//pass
+			}
+			else
+			{
+				continue;
+			}
+		}
 		long long int start = chrom[i - 1];
 		long long int end = chrom[i];
 		
@@ -324,7 +351,11 @@ int main(int argc , char *argv[])
 		char tem[3];
 		sprintf(tem , "%d" , i);
 		string ref_file = vcf_prefix;
-		gzLoadVcfFile(tem , ref_file.c_str() ,p_VcfIndex ,p_VcfFile );
+		bool load = gzLoadVcfFile(tem , ref_file.c_str() ,p_VcfIndex ,p_VcfFile );
+		if(!load)
+		{
+			continue;
+		}
 		cout << "Done!\n";	
 		
 		/////////////////////////////////////////
@@ -338,9 +369,9 @@ int main(int argc , char *argv[])
 		sem_t  bin_sem;    //set Semaphore
 		int res = sem_init(&bin_sem, 0, 0);//init Semaphore
 		if (res != 0)
-    	{
-        	perror("Semaphore initialization failed");
-    	}
+    		{
+        		perror("Semaphore initialization failed");
+    		}
 		
 		pthread_t tids[real_batch];
 		struct thread_data td[real_batch];
@@ -366,24 +397,24 @@ int main(int argc , char *argv[])
 
 			int ret = pthread_create(&tids[ii], NULL, main_process, (void *)&td[ii]);
 			if (ret != 0)
-        	{
+        		{
            		cout << "pthread_create error: error_code=" << ret << endl;
-       		}	 
+       			}	 
 		}
 	// To make sure all sub-threads are finished in each chromosome, because they share the same memory of the reference panel
 		for(int j = 0;j < real_batch;j++)
-    	{
-        	sem_wait(&bin_sem);    
-    	}
-    	sem_destroy(&bin_sem);        //release sem
+    		{
+        		sem_wait(&bin_sem);    
+    		}
+    		sem_destroy(&bin_sem);        //release sem
     	
 		printf("Imputation on chromosome No.%d finished!\n",chrom);
+		printf("Finalizing output files ... ");
+	
+		organize_files(chrom , out , pos1);
+		cout << "Done!" << endl;
 	}
 	
-	printf("Finalizing output files ... ");
-	
-	organize_files(chrom_num , out , pos1);
-	cout << "Done!" << endl;
 	
 	cout << "Imputation processes have been Successfully Finished!\n";
 	

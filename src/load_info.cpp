@@ -40,7 +40,7 @@ bool gzLoadVcfFile(char* tem , const char* gzfn , map<string,long long int>* p_V
 	//open .gz file
 	if(!gzfp)
 	{
-		cout << "can't open\n";
+		cout << "\ncan't find reference panel!\n";
 		return false;
 	}
 	char buf[GZ_BUF_SIZE];
@@ -81,10 +81,25 @@ bool gzLoadVcfFile(char* tem , const char* gzfn , map<string,long long int>* p_V
 //record postions of all molecular
 void load_pos_map(string annotation , map<string,long long int*> *pos_map)
 {
-	ifstream fin(annotation.c_str());
+	ifstream fin(annotation.c_str());  
+	if(fin.fail())
+	{
+		cout << "\nCan't find " + annotation << endl;
+		exit(0);
+	} 
 	string line;
-	getline(fin,line);
-	getline(fin,line);
+	if(!getline(fin,line))
+	{
+		cout << "\nEmpty annotation file!\n";
+		exit(0);
+	}
+
+	if(!getline(fin,line))
+	{
+		cout << "\nEmpty annotation file!\n";
+		exit(0);
+	}
+	
 	while(line != "")
 	{
 		//pos0:start pos  pos1:end pos
@@ -348,14 +363,20 @@ int travel_Xqtl(long long int start , long long int end ,
 	
 	ifstream fin1(Xqtl_path.c_str());
 	int batch_size = counter / batch;
-
-	if(counter % batch == 0)
+	if(batch_size == 0)
 	{
-		real_batch = batch;
+		real_batch = counter;
 	}
 	else
 	{
-		real_batch = batch + 1;
+		if(counter % batch == 0)
+		{
+			real_batch = batch;
+		}
+		else
+		{
+			real_batch = batch + 1;
+		}	
 	}
 	
 	(*p_batch_bonder).push_back(start);

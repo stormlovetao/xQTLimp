@@ -136,7 +136,7 @@ void get_all_freqs(const vector<string>& haps, vector<double> &freqs);
 double get_freq(const vector<string>& haps, size_t snp_idx);
 
 // compute the h frequency between two snps, specified by snp_idx1, snp_idx2
-double get_h_freq(const vector<string>& haps,size_t snp_idx1,size_t snp_idx2);
+double get_h_freq(const vector<string>* haps,size_t snp_idx1,size_t snp_idx2);
 
 // get variance
 double get_var(const vector<string>& haps,

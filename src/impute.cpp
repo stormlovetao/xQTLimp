@@ -5,6 +5,7 @@ vector<char> convert_flags,vector<char> impute_flags ,
 	vector<string> haps,vector<long long int>* p_useful_typed_snps,
 	map<long long int, int> *p_m_all_snps,map<long long int,int> *p_m_typed_snps , double** last_sigma_it ,int row)
 {
+	vector<string>* p_haps = &haps;
 	size_t num_typed_snps = typed_snps.size();
 	size_t num_total_snps = all_snps.size();
 	
@@ -31,14 +32,13 @@ vector<char> convert_flags,vector<char> impute_flags ,
 	size_t sigma_t_tmp_size = num_typed_snps * num_typed_snps;
 	double *sigma_t_tmp = (double*)safe_calloc(sigma_t_tmp_size,
 		sizeof(double));
-	
 	for(size_t i = 0; i < num_typed_snps; i++) {
 		size_t idxi = typed_snps[i].idx;
 		double pi = freqs[idxi];
 		for(size_t j = i+1; j < num_typed_snps; j++) {
 			size_t idxj = typed_snps[j].idx;
 			double pj = freqs[idxj];
-			double pij = get_h_freq(haps, idxi, idxj);
+			double pij = get_h_freq(p_haps, idxi, idxj);
 			double r = (pij-pi*pj)/sqrt(pi*(1.0-pi)*pj*(1.0-pj));  
 			sigma_t_tmp[i*num_typed_snps+j] = r;
 			sigma_t_tmp[j*num_typed_snps+i] = sigma_t_tmp[i*num_typed_snps+j];
@@ -46,8 +46,6 @@ vector<char> convert_flags,vector<char> impute_flags ,
 		sigma_t_tmp[i*num_typed_snps+i] = 1.0;
 	}
 	// output the betas and vars
-
-		
 	// for filtering
 	vector<char> filter_flags;
 	filter_flags.resize(num_typed_snps, 0);
@@ -160,7 +158,7 @@ vector<char> convert_flags,vector<char> impute_flags ,
 						}
 						else 
 						{
-							double pij = get_h_freq(haps, idx, sidx);
+							double pij = get_h_freq(p_haps, idx, sidx);
 							r = (pij-pi*pj)/sqrt(pi*(1.0-pi)*pj*(1.0-pj));
 						}
 						sigma_it[ii] = r;
@@ -358,7 +356,7 @@ vector<char> impute_flags,vector<long long int>* p_useful_typed_snps) {
 	size_t num_total_snps = all_snps.size();
 	char tem[5];
 	sprintf(tem , "%d" , chrom);
-	string OUT_FILE =  out_dir + string(tem) + "/" + last_name;
+	string OUT_FILE =  out_dir + '.' +  string(tem) + "/" + last_name;
 	
 	// load z-score typed snps
 	vector<zscore_typed_snp> ztyped_snps;

@@ -35,8 +35,8 @@ void clean_all_vector(	vector<typed_snp> *p_maf_snps,
 							vector<int>* p_snps_flag);
 int get_chrom(string line);
 int split_chrom(string Xqtl_path ,long long int chrom[]);
-void make_output_dir(int chrom_num  ,char *Out);
-void organize_files(int chrom_num , string out , map<string,long long int*> pos_map);
+void make_output_dir(int chrom_num  ,char *Out ,int chr);
+void organize_files(int chrom , string out , map<string,long long int*> pos_map);
 void print_usage (FILE * stream, int exit_code);
 
 #endif
