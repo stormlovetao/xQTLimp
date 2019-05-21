@@ -23,6 +23,8 @@ using namespace std;
 
 
 bool gzLoadVcfFile(char* tem , const char* gzfn , map<string,long long int>* p_VcfIndex ,vector<string>* p_VcfFile );
+bool gzLoadVcfFile_exclude(string exclude , char* tem , const char* gzfn , map<string,long long int>* p_VcfIndex ,vector<string>* p_VcfFile );
+bool gzLoadVcfFile_exclude_file(string exclude_file , char* tem , const char* gzfn , map<string,long long int>* p_VcfIndex ,vector<string>* p_VcfFile );
 void load_pos_map(string annotation , map<string,long long int*> *pos_map);
 void record_all(vector<snps> *p_origin_typed_snps , string  pos , string ref, string alt  ,   string z);
 void filter_snps(string file_name , string last_name , vector<snps> *p_origin_typed_snps ,

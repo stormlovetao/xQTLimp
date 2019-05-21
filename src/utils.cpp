@@ -71,7 +71,7 @@ bool search_by_pos(const vector<typed_snp> &typed_snps,
 			found = true;
 			break;
 		}
-		else if(typed_snps[idx].snp_pos < pos) {
+		else if(typed_snps[idx].snp_pos < pos){
 			left = idx + 1;
 		}
 		else {

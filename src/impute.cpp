@@ -429,6 +429,18 @@ vector<char> impute_flags,vector<long long int>* p_useful_typed_snps) {
 			
 			
 	}
+	while(cursor < combine_len)
+	{
+			char posi[10];
+			sprintf(posi , "%lld" , combine[cursor].snp_pos);
+			string var_id = "";
+			var_id  = string(tem) + "_" + string(posi) + "_" + combine[cursor].ref_allele + "_" + combine[cursor].alt_allele;
+
+			fprintf(fout, "%s %lld %s %s %.6lf %.6lf 0\n",
+		            var_id.c_str() , combine[cursor].snp_pos,combine[cursor].ref_allele.c_str(),
+			combine[cursor].alt_allele.c_str(),combine[cursor].zscore, 1.0);
+			cursor++;
+	}
 	
 	fclose(fout);
 	for(int i = 0;i < index;i++)

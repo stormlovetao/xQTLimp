@@ -41,6 +41,7 @@ bool gzLoadVcfFile(char* tem , const char* gzfn , map<string,long long int>* p_V
 	if(!gzfp)
 	{
 		cout << "\ncan't find reference panel!\n";
+		exit(0);
 		return false;
 	}
 	char buf[GZ_BUF_SIZE];
@@ -77,6 +78,310 @@ bool gzLoadVcfFile(char* tem , const char* gzfn , map<string,long long int>* p_V
 	gzclose(gzfp);
 	return true;
 }
+
+bool gzLoadVcfFile_exclude(string exclude , char* tem , const char* gzfn , map<string,long long int>* p_VcfIndex ,vector<string>* p_VcfFile )
+{
+	int index1 = 0;
+	int len = exclude.length();
+	string line = exclude;
+	string chrom = "";
+	string start = "";
+	string end = "";
+	while(index1 < len && line[index1] != ':')
+	{
+		chrom += line[index1];
+		index1++;
+	}
+	index1++;
+	while(index1 < len && line[index1] != '-')
+	{
+		start += line[index1];
+		index1++;
+	}
+	index1++;
+	while(index1 < len)
+	{
+		end += line[index1];
+		index1++;
+	}
+
+	struct dirent* ent = NULL;
+   	DIR *pDir;
+   	pDir=opendir(gzfn);
+	gzFile gzfp = NULL;
+    	while (NULL != (ent=readdir(pDir)))
+    	{
+  
+ 	           if (ent->d_type==8)
+ 		 {
+			int i = 0;
+			for(i = 0;i < strlen(tem);i++)
+			{
+				if(tem[i] == ent -> d_name[4 + i])
+				{
+				}
+				else
+				{
+					break;
+				}
+			}
+			if(i == strlen(tem) && ent -> d_name[4 + strlen(tem)] == '.')
+			{
+				string tem = string(gzfn) +  string(ent -> d_name);
+				gzfp = gzopen(tem.c_str(),"rb");
+				break;
+			}
+ 	           }
+            	else
+            	{
+            	}
+      
+  	}
+	//open .gz file
+	if(!gzfp)
+	{
+		cout << "\ncan't find reference panel!\n";
+		exit(0);
+		return false;
+	}
+	char buf[GZ_BUF_SIZE];
+
+	//erase head
+	gzgets(gzfp , buf , GZ_BUF_SIZE);
+	while(buf[0] == '#')
+	{
+ 	       gzgets(gzfp , buf , GZ_BUF_SIZE);
+    	}
+
+
+
+	int flag = 0;
+	long long int left = 0;
+	long long int right = 0;
+	if(string(tem) == chrom)
+	{
+		flag = 1;
+		left = atoi(start.c_str());
+		right = atoi(end.c_str());	
+	}
+
+	long long int index = 0;
+	line = string(buf);
+	string pos = read_pos(line);
+	long long int p = atoi(pos.c_str());
+
+	if(flag == 0)
+	{
+	 	(*p_VcfIndex)[pos] = index;
+		(*p_VcfFile).push_back(line);	
+		index++;
+	}
+	else
+	{
+		if(p < left || p > right)
+		{
+			(*p_VcfIndex)[pos] = index;
+			(*p_VcfFile).push_back(line);	
+			index++;
+		}	
+	}
+  
+
+	while( gzgets(gzfp , buf , GZ_BUF_SIZE))
+	{
+		string line = string(buf);
+		string pos = read_pos(line);
+		long long int p = atoi(pos.c_str());
+		if((*p_VcfIndex).count(pos) == 1)
+		{
+		//	cout << "conflict information in vcf file!\n";
+		}
+		else
+		{
+			if(flag == 0)
+			{
+	 			(*p_VcfIndex)[pos] = index;
+				(*p_VcfFile).push_back(line);	
+				index++;
+			}
+			else
+			{
+				if(p < left || p > right)
+				{
+					(*p_VcfIndex)[pos] = index;
+					(*p_VcfFile).push_back(line);	
+					index++;
+				}	
+			}
+		}
+	}
+	//close .gz file
+	gzclose(gzfp);
+	return true;
+
+	
+
+
+	
+
+}
+
+
+bool gzLoadVcfFile_exclude_file(string exclude_file , char* tem , const char* gzfn , map<string,long long int>* p_VcfIndex ,vector<string>* p_VcfFile )
+{
+	ifstream fin(exclude_file.c_str());
+	if(fin.fail())
+	{
+		cout << "\nCan't find " + exclude_file << endl;
+		exit(0);
+ 
+	}
+	map<string , string*>ex;
+	string line;
+	getline(fin , line);
+	
+	while(line != "")
+	{
+		//pos0:start pos  pos1:end pos
+		int len = line.length();
+		string chr;
+		string c[2];
+		int index = 0;
+		for(int i = 0 ;i < 3;i++)
+		{
+			while(index < len && line[index] != '\t' && line[index] != ' ')
+			{
+				chr += line[index];
+				index++;
+			}
+			
+			while(index < len && (line[index] == '\t' || line[index] == ' '))
+			{
+				index++;
+			}
+			
+		}
+		ex[chr] = c;		
+		getline(fin,line);
+	}
+	fin.close();
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	struct dirent* ent = NULL;
+   	DIR *pDir;
+   	pDir=opendir(gzfn);
+	gzFile gzfp = NULL;
+    	while (NULL != (ent=readdir(pDir)))
+    	{
+  
+ 	           if (ent->d_type==8)
+ 		 {
+			int i = 0;
+			for(i = 0;i < strlen(tem);i++)
+			{
+				if(tem[i] == ent -> d_name[4 + i])
+				{
+				}
+				else
+				{
+					break;
+				}
+			}
+			if(i == strlen(tem) && ent -> d_name[4 + strlen(tem)] == '.')
+			{
+				string tem = string(gzfn) +  string(ent -> d_name);
+				gzfp = gzopen(tem.c_str(),"rb");
+				break;
+			}
+ 	           }
+            	else
+            	{
+            	}
+      
+  	}
+	//open .gz file
+	if(!gzfp)
+	{
+		cout << "\ncan't find reference panel!\n";
+		exit(0);
+		return false;
+	}
+	char buf[GZ_BUF_SIZE];
+
+	//erase head
+	gzgets(gzfp , buf , GZ_BUF_SIZE);
+	while(buf[0] == '#')
+	{
+ 	       gzgets(gzfp , buf , GZ_BUF_SIZE);
+    	}
+        
+	long long int index = 0;
+	line = string(buf);
+	string pos = read_pos(line);
+	long long int p = atoi(pos.c_str());
+	int flag = 0;
+	long long int left = 0;
+	long long int right = 0;
+	if(ex.count(string(tem)) == 1)
+	{
+		flag = 1;
+		left = atoi(ex[string(tem)][0].c_str());
+		right = atoi(ex[string(tem)][1].c_str());	
+	}
+
+	if(flag == 0)
+	{
+	 	(*p_VcfIndex)[pos] = index;
+		(*p_VcfFile).push_back(line);	
+		index++;
+	}
+	else
+	{
+		if(p < left || p > right)
+		{
+			(*p_VcfIndex)[pos] = index;
+			(*p_VcfFile).push_back(line);	
+			index++;
+		}	
+	}
+  
+
+	while( gzgets(gzfp , buf , GZ_BUF_SIZE))
+	{
+		string line = string(buf);
+		string pos = read_pos(line);
+		long long int p = atoi(pos.c_str());
+		if((*p_VcfIndex).count(pos) == 1)
+		{
+		//	cout << "conflict information in vcf file!\n";
+		}
+		else
+		{
+			if(flag == 0)
+			{
+	 			(*p_VcfIndex)[pos] = index;
+				(*p_VcfFile).push_back(line);	
+				index++;
+			}
+			else
+			{
+				if(p < left || p > right)
+				{
+					(*p_VcfIndex)[pos] = index;
+					(*p_VcfFile).push_back(line);	
+					index++;
+				}	
+			}
+		}
+	}
+	//close .gz file
+	gzclose(gzfp);
+	return true;
+	
+
+
+}
+
 
 //record postions of all molecular
 void load_pos_map(string annotation , map<string,long long int*> *pos_map)
@@ -426,6 +731,3 @@ int travel_Xqtl(long long int start , long long int end ,
 	return real_batch;
 	
 }
-
-
-

@@ -172,8 +172,10 @@ int main(int argc , char *argv[])
 	char* LAMBDA = NULL;
 	char* WIN = NULL;
 	char* CHR = NULL;
+	char* EXCLUDE = NULL;
+	char* EXCLUDE_FILE = NULL;
 
-	const char *const short_options = "hx:m:v:o:t:f:l:w:c:";
+	const char *const short_options = "hx:m:v:o:t:f:l:w:c:e:b:";
 	const struct option long_options[] = {
 	{"help", 0, NULL, 'h'},
 	{"xQTL", 1, NULL, 'x'},
@@ -184,7 +186,9 @@ int main(int argc , char *argv[])
 	{"MAF_cutoff", 1, NULL, 'f'}, 
 	{"lambda", 1, NULL, 'l'},
 	{"window_size", 1, NULL, 'w'},
-	{"chr",1,NULL,'c'},
+	{"Chr",1,NULL,'c'},
+	{"exclude" , 1 , NULL , 'e'},
+	{"exclude_file" , 1  , NULL , 'b'},
 	{NULL, 0, NULL, 0 }
 	};
 
@@ -233,7 +237,12 @@ int main(int argc , char *argv[])
 			case 'c': // chrom
 				CHR = (char*)strdup(optarg);
 				break;
-
+			case 'e'://region for imputation
+				EXCLUDE = (char*)strdup(optarg);
+				break;
+			case 'b'://region for imputation
+				EXCLUDE_FILE = (char*)strdup(optarg);
+				break;
 			case '?':
 				print_usage (stdout, 1);
 				break;
@@ -255,12 +264,37 @@ int main(int argc , char *argv[])
 	string Xqtl_path = string(XQTL_path);
 	string vcf_prefix = string(Vcf_prefix);
 	string out = string(Out);
+	string exclude =  "";
+	string exclude_file = "";
+	int exclude_flag = 0;
+	int exclude_file_flag = 0;
 	int batch = 1;
 	int chr = -1;
 	double maf = 0.01;
 	double lam = 0.1;
 	int window_size = 500000;
 
+	if(EXCLUDE == NULL)
+	{
+		
+	}
+	else
+	{
+		exclude  = string(EXCLUDE);
+		exclude_flag = 1;
+	}
+
+	if(EXCLUDE_FILE == NULL)
+	{
+		
+	}
+	else
+	{
+		exclude_file = string(EXCLUDE_FILE);
+		exclude_file_flag = 1;
+	}
+
+	
 	if(BATCH == NULL)
 	{
 		batch = 1;
@@ -316,9 +350,20 @@ int main(int argc , char *argv[])
 	//seperate chrom
 	long long int chrom[1261];
 	int chrom_num = split_chrom(Xqtl_path , chrom);
-	cout << chrom_num << " chromosomes detected!" << endl;
+	int total_num = 0;
+	for(int j = 1;j <= chrom_num;j++)
+	{
+		if(chrom[j] != chrom[j - 1])
+		{
+			total_num++;
+		}
+	}
 
-	make_output_dir(chrom_num , Out , chr);
+	cout << total_num << " chromosomes detected!" << endl;
+
+	make_output_dir(chrom , chrom_num , Out , chr);
+
+	
 
 	for(int i = 1;i <= chrom_num;i++)
 	{
@@ -336,7 +381,7 @@ int main(int argc , char *argv[])
 		long long int start = chrom[i - 1];
 		long long int end = chrom[i];
 		
-		if(start == 0 || end == 0)
+		if(start == end)
 		{
 			continue;
 		}
@@ -351,11 +396,21 @@ int main(int argc , char *argv[])
 		char tem[3];
 		sprintf(tem , "%d" , i);
 		string ref_file = vcf_prefix;
-		bool load = gzLoadVcfFile(tem , ref_file.c_str() ,p_VcfIndex ,p_VcfFile );
-		if(!load)
+		bool load = false;
+		
+		if(exclude_flag == 1)
 		{
-			continue;
+			load = gzLoadVcfFile_exclude( exclude , tem , ref_file.c_str() ,p_VcfIndex ,p_VcfFile );
 		}
+		else if(exclude_file_flag == 1)
+		{
+			load = gzLoadVcfFile_exclude_file(exclude_file , tem , ref_file.c_str() ,p_VcfIndex ,p_VcfFile );
+		}
+		else
+		{
+			load = gzLoadVcfFile(tem , ref_file.c_str() ,p_VcfIndex ,p_VcfFile );			
+		}
+
 		cout << "Done!\n";	
 		
 		/////////////////////////////////////////

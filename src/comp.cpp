@@ -255,21 +255,15 @@ int split_chrom(string Xqtl_path ,long long int chrom[])
 	chrom[0] = fin.tellg();
 	int current_chrom = 1;
 	long long int pos = 0;
-	int flag = 0;
 	while(true)
 	{
 		pos = fin.tellg();
 		getline(fin , line);
 		if(line == "")
 		{
-			if(!flag)
-			{
-				return 0;
-			}
 			chrom[current_chrom] = pos;
 			break;
 		}
-		flag  = 1;
 		int now_chrom = get_chrom(line);
 		if(current_chrom == now_chrom)
 		{
@@ -278,6 +272,10 @@ int split_chrom(string Xqtl_path ,long long int chrom[])
 		else
 		{
 			chrom[current_chrom] = pos;
+			for(int i = current_chrom + 1;i < now_chrom;i++)
+			{
+				chrom[i] = chrom[i - 1];
+			}
 			current_chrom = now_chrom;	
 		} 
 	}
@@ -287,7 +285,7 @@ int split_chrom(string Xqtl_path ,long long int chrom[])
 	
 }
 
-void make_output_dir(int chrom_num , char *Out , int chr)
+void make_output_dir(long long int chrom[] , int chrom_num , char *Out , int chr)
 {
 	string path = string(Out);
 	char tem[10];
@@ -303,6 +301,10 @@ void make_output_dir(int chrom_num , char *Out , int chr)
 	{
 		for(int i = 1;i <= chrom_num;i++)
 		{
+			if(chrom[i] == chrom[i - 1])
+			{
+				continue;
+			}
 			string new_path = path;
 			sprintf(tem , "%d" , i);
 			string new_path1 = (new_path + '.' + string(tem));
@@ -376,7 +378,9 @@ void print_usage (FILE * stream, int exit_code)
 	"-f --MAF_cutoff\t\t Minimum MAF threshold for variants in genome reference panel, 0.01 in default.\n"
 	"-l --lambda_value\t A constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default \n"
 	"-c --chr\t\t Only impute the chromosome user specified\n"
-	"-w --window_size \t Window size N, +-N/2 apart from molecular start pos, 500Kb in default.\n");
+	"-w --window_size \t Window size N, +-N/2 apart from molecular start pos, 500Kb in default.\n"
+	"-e --exclude\t\t the range don't need imputation, the format is chr:start-end\n"
+	"-b --exclude_file\t record the range don't need imputaion for more than one chromosome,the format is chr start end ...(optional) ... for each line\n");
 
 	exit (exit_code);
 }
