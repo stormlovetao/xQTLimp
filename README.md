@@ -4,7 +4,7 @@ xQTLImp is an open source software that implements xQTL(such as eQTL, mQTL, haQT
 
 In general, xQTLImp can handle any kinds of molecular traits (not limited to gene expression, DNA methylation or histone acetylation) that can be physically mapped onto genomic regions, without limitation in species. Genomic variants such as SNV and small Indel(Insertion/deletion) are both supported. And xQTLImp can be applied in multiple scenarios, such as in performing meta-analysis of multiple eQTL studies which have reported different, but correlated sets of variants. 
 
-xQTLImp is implemented in C++ and released under GNU GPL license. The source code and sample data are freely available for download at current webpage, and can be run on Linux/Unix/windows with C++ environment. To get better performance, xQTLImp can be executed in parallel mode, during which each chromosome will be broken into *N* chunks (*N* = number of threads) with each chunk has similar number of molecules. And on average, xQTLImp will need 8Gb memory to execute, which is easy to be distributed on PC and server.
+xQTLImp is implemented in C++ and released under GNU GPL license. The source code and sample data are freely available for download at current webpage, and can be run on Linux/Unix/windows with C++ environment. To get better performance, xQTLImp can be executed in parallel mode, during which each chromosome will be broken into *N* chunks (*N* = number of threads) with each chunk has similar number of molecules. And on average, xQTLImp will need ~4Gb memory to execute in genome wide , which is easy to be distributed on PC and server.
 </br>
 
 ##  Building xQTLImp
@@ -87,10 +87,39 @@ xQTLImp
 -m, --molecule       file_path      # string, the file path of molecule annotation file.
 -v, --VCF            folder_path    # string, the folder path of genome reference panel, such as 1000G VCF files.
 -o, --output         folder_path    # string, the folder path of output results. 
+-c, --chr            chromosome     # int, specify which chromosome will be imputed.
 -t, --num_threads    num_threads    # int, number of threads, 1 in default.
+-e, --exclude        chr:start-end  # int:int-int, specify a genome region in which variants will be ignored during imputation process.
+-b, --exclude_file   file_path      # string, multiple genome regions user want to mask during imputation process.
 -f, --MAF_cutoff     MAF_cutoff     # double, minimum MAF threshold for variants in genome reference panel, 0.01 in default.
 -l, --lambda_value   lambda_value   # double, a constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default. 
--w, --window_size    window_size    # int, Window size N, +-N/2 apart from molecular start pos, 500Kb in default.
+-w, --window_size    window_size    # int, Window size N, +-N/2 apart from molecular center pos, 500Kb in default.
+```
+*Notes* 
+* ```-e or --exclude``` is useful for users to exclude genome regions they want to ignore, such as the complex human MHC region (chr6:28,477,797-33,448,354 in hg19), which will tremendously slow down the imputation process because of high density of genomic markers. 
+* Combining ```-c or --chr``` with ```-t or --num_threads``` could greatly save time for users by taking advantage of HPC. For example, on a slurm based cluster, the following script named *Cluster_sample.sh* can be submitted onto multiple nodes with multiple threads:
+
+```bash
+cat Cluster_sample.sh  # in shell
+#!/bin/bash
+#SBATCH -c 16                   # Number of cores
+#SBATCH -t 2:00:00              # Runtime
+#SBATCH -p short                # Partition (queue) to submit to
+#SBATCH --mem-per-cpu=1G        # memory needed (memory PER CORE)
+chr=$1
+Path_to_xQTLImp/src/xQTLImp             \
+-x your_path/Input_xQTL_file            \
+-m your_path/molecular_annotation_file  \
+-v your_path/1000G_ref_panel/           \
+-o your_output_folder_path/             \
+-e 6:28477797-33448354                  \
+-c $chr                                 \
+-t 16
+
+# shell code
+for chr in {1..22}}; do
+	sbatch Cluster_sample.sh $chr
+done
 ```
 
 ### Running sample data
