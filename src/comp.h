@@ -15,10 +15,21 @@
 #include <time.h>
 #include<sys/stat.h>
 #include<sys/types.h>
+#include <algorithm>
 #include "utils.h" 
+
+typedef struct {
+	string name;
+	int chrom;
+	long long int start;
+	long long int end;
+	long long int l_win;
+	long long int r_win;
+}file_record;
 
 using namespace std;
 string read_pos(string line);
+bool my_cmp(file_record a,file_record b);
 void split_line(string line_list[],string line);
 void init_line_list(string line_list[]);
 void extract(long long int* pos,string* name,string line);

@@ -2,6 +2,118 @@
 #include "comp.h"
 
 
+
+void reorganize_xqtl(long long int num,string Xqtl_path , map<string,long long int*> *pos_map)
+{
+	file_record* file = (file_record*)malloc(num * sizeof(file_record));
+	ifstream fin(Xqtl_path.c_str());
+	if(fin.fail())
+	{
+		cout << "\nCan't find " + Xqtl_path << endl;
+		exit(0);
+ 
+	}
+	string line = "";
+	if(!getline(fin , line))
+	{
+		cout << "\nEmpty xqtl file" << endl;
+		exit(0);
+	}
+
+	long long int pos_s = fin.tellg();
+	if(!getline(fin , line))
+	{
+		cout << "\nEmpty xqtl file" << endl;
+		exit(0);
+	}
+
+	string line_list[100];
+	split_line(line_list,line);
+	string name = line_list[1];
+	string last_name;
+	file[0].start = pos_s;
+	file[0].chrom = atoi(line_list[0].c_str());
+	long long cursor = 0;
+
+	while(true)
+	{
+		last_name = name;
+		long long int pos = fin.tellg();
+		getline(fin,line);
+		if(line == "")
+		{
+			file[cursor].name = last_name;
+			file[cursor].end = pos;
+			if((*pos_map).count(last_name) == 0)
+			{
+				cout << "can't find " + last_name + " in annotation file!\n";
+				exit(0);
+			}
+			file[cursor].l_win = (*pos_map)[last_name][0];
+			file[cursor].r_win = (*pos_map)[last_name][1];
+			cursor++;
+			break;
+		}
+		init_line_list(line_list);
+		split_line(line_list,line);
+		name = line_list[1];
+
+		if(last_name != name)
+		{
+			file[cursor].name = last_name;
+			file[cursor].end = pos;
+			if((*pos_map).count(last_name) == 0)
+			{
+				cout << "can't find " + last_name + " in annotation file!\n";
+				exit(0);
+			}
+			file[cursor].l_win = (*pos_map)[last_name][0];
+			file[cursor].r_win = (*pos_map)[last_name][1];
+			cursor++;			
+			file[cursor].start = pos;
+			file[cursor].chrom =  atoi(line_list[0].c_str());
+		} 
+		else
+		{
+				
+		}
+	} 
+
+	sort(file,file + cursor,my_cmp);	
+
+
+
+	ifstream fin1(Xqtl_path.c_str());
+	getline(fin1 , line);	
+	ofstream fin2("tem");	
+	fin2 << line << endl;
+	for(long long int i = 0;i < cursor;i++)
+	{
+		fin1.seekg(file[i].start);
+		while(fin1.tellg() != file[i].end)
+		{
+			getline(fin1 , line);
+			fin2 << line << endl;
+		}
+	}
+	
+	fin2.close();
+
+
+	ifstream finr("tem");
+	ofstream finw(Xqtl_path.c_str());
+	getline(finr , line);
+	while(line != "")
+	{
+		finw << line << endl;
+		getline(finr , line);
+	}
+
+	finr.close();
+	finw.close();
+	remove("tem");
+}
+
 bool gzLoadVcfFile(char* tem , const char* gzfn , map<string,long long int>* p_VcfIndex ,vector<string>* p_VcfFile )
 {
 
@@ -384,7 +496,7 @@ bool gzLoadVcfFile_exclude_file(string exclude_file , char* tem , const char* gz
 
 
 //record postions of all molecular
-void load_pos_map(string annotation , map<string,long long int*> *pos_map)
+long long int load_pos_map(string annotation , map<string,long long int*> *pos_map)
 {
 	ifstream fin(annotation.c_str());  
 	if(fin.fail())
@@ -404,6 +516,7 @@ void load_pos_map(string annotation , map<string,long long int*> *pos_map)
 		cout << "\nEmpty annotation file!\n";
 		exit(0);
 	}
+	long long int xx = 0;
 	
 	while(line != "")
 	{
@@ -415,9 +528,11 @@ void load_pos_map(string annotation , map<string,long long int*> *pos_map)
 		extract(pos , cur_name ,line);
 		//record it into map
 		(*pos_map)[name] = pos;
+		xx++;
 		getline(fin,line);
 	}
 	fin.close();
+	return xx;
 }
 
 

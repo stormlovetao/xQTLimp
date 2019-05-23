@@ -345,10 +345,14 @@ int main(int argc , char *argv[])
 	cout << "Loading molecular annotation file ... ";
 	map<string,long long int*> pos1;
 	map<string,long long int*> *pos_map = &pos1; 
-	load_pos_map(annotation , pos_map);	
+	long long int anno_num =load_pos_map(annotation , pos_map);	
 	 cout << "Done!" << endl;	
 	//seperate chrom
 	long long int chrom[1261];
+	cout << "Reorganizing xQTL file ... ";
+	reorganize_xqtl(anno_num , Xqtl_path , pos_map);
+	cout << "Done!" << endl;
+	
 	int chrom_num = split_chrom(Xqtl_path , chrom);
 	int total_num = 0;
 	for(int j = 1;j <= chrom_num;j++)

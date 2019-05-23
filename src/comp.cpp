@@ -1,5 +1,23 @@
 #include "comp.h"
 
+
+ bool my_cmp(file_record a,file_record b)
+{
+	if(a.chrom == b.chrom)
+	{
+		if(a.l_win == b.l_win)
+		{
+			return a.r_win < b.r_win;	
+		}
+
+       		 return a.l_win < b.l_win;
+		
+	}
+	return a.chrom < b.chrom;
+
+
+}
+
 string read_pos(string line)
 {
 	string pos = "";
@@ -319,7 +337,8 @@ void make_output_dir(long long int chrom[] , int chrom_num , char *Out , int chr
 
 void organize_files(int chrom , string out , map<string,long long int*> pos_map)
 {
-	
+		file_record files[10000];
+		int cursor = 0;
 		string new_path = out;
 		char tem[10];
 		sprintf(tem , "%d" , chrom);
@@ -336,20 +355,16 @@ void organize_files(int chrom , string out , map<string,long long int*> pos_map)
   
  	           	if (ent->d_type==8)
  			 {
-				string file_path = new_path1 + string(ent -> d_name);
-				ifstream fin(file_path.c_str());
-				string line;
-				getline(fin,line);
-				getline(fin,line);
-				long long int start = pos_map[string(ent -> d_name)][0];
-				long long int end = pos_map[string(ent -> d_name)][1];
-				while(line != "")
+				files[cursor].name = string(ent -> d_name);
+				files[cursor].l_win = pos_map[string(ent -> d_name)][0];
+				files[cursor].r_win = pos_map[string(ent -> d_name)][1];
+				files[cursor].chrom = chrom;
+				cursor++;
+				if(cursor == 10000)
 				{
-				    fprintf(fp, "%s %s %lld %lld %s\n"  ,tem , ent -> d_name , start , end , line.c_str());
-				    getline(fin , line);
+					cout << "Too much records!" << endl;
+					exit(0); 
 				}
-				fin.close();
-				remove(file_path.c_str());
 				
 			}
             		else
@@ -357,6 +372,28 @@ void organize_files(int chrom , string out , map<string,long long int*> pos_map)
             		}
       
   		}
+
+		sort(files , files + cursor , my_cmp);
+		for(int i = 0;i < cursor;i++)
+		{
+			string file_path = new_path1 + files[i].name;
+			ifstream fin(file_path.c_str());
+			string line;
+			getline(fin,line);
+
+			getline(fin,line);
+			long long int start = pos_map[files[i].name][0];
+			long long int end = pos_map[files[i].name][1];
+			while(line != "")
+			{
+				fprintf(fp, "%s %s %lld %lld %s\n"  ,tem , files[i].name.c_str() , start , end , line.c_str());
+				getline(fin , line);
+			}
+			fin.close();
+			remove(file_path.c_str());			
+		}
+		
+		
 
 		fclose(fp);
 		rmdir(new_path1.c_str());
