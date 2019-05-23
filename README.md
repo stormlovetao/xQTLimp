@@ -47,7 +47,7 @@ done
 ```
 
 #### 2. Molecule annotation file
-Molecule annotation file gives the physical position of each molecule on reference genome. This annotation file should start with a column name line that contains at least three columns – molecular_ID, start_pos, end_pos ...(optional columns), followed by lines of data entries. Each field of data entries must be separated by white spaces. Header names can be changed.</br>
+Molecule annotation file gives the physical position of each molecule on reference genome. This annotation file should start with a column name line that contains at least three columns – molecular_ID, start_pos, end_pos ...(optional columns), followed by lines of data entries. Each field of data entries must be separated by tab or white spaces. Header names can be changed.</br>
 ##### Example:
 
 `molecular_ID`| `start_pos`| `end_pos`
@@ -60,7 +60,7 @@ ENSG00000237613.2	| 34554	| 36081
 
 
 #### 3. xQTL summary statistics
-This file gives summary statistics associated with pairs of variants and molecular traits. The xQTL file should start with a line that contains at least 6 columns – chromosome , molecular_ID, variant_pos , ref_allele , alt_allele , z_statistics ...(optional columns),followed by lines of data entries. Each field of data entries must be separated by white spaces. Header names can be changed. </br>
+This file gives summary statistics associated with pairs of variants and molecular traits. The xQTL file should start with a line that contains at least 6 columns – chromosome , molecular_ID, variant_pos , ref_allele , alt_allele , z_statistics ...(optional columns),followed by lines of data entries. Each field of data entries must be separated by tab or white spaces. Header names can be changed. </br>
 ##### Example:
 `chromosome` | `molecular_ID` | `variant_pos` | `ref_allele` | `alt_allele` | `z_statistics`
 --|--|--|--|--|--
