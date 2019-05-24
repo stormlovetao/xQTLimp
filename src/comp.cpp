@@ -1,6 +1,5 @@
 #include "comp.h"
-
-
+#include <algorithm>
  bool my_cmp(file_record a,file_record b)
 {
 	if(a.chrom == b.chrom)

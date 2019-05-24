@@ -1,11 +1,12 @@
 #include "load_info.h"
 #include "comp.h"
+#include<algorithm>
 
 
 
 void reorganize_xqtl(long long int num,string Xqtl_path , map<string,long long int*> *pos_map)
 {
-	file_record* file = (file_record*)malloc(num * sizeof(file_record));
+	file_record file[100000];
 	ifstream fin(Xqtl_path.c_str());
 	if(fin.fail())
 	{
@@ -26,14 +27,15 @@ void reorganize_xqtl(long long int num,string Xqtl_path , map<string,long long i
 		cout << "\nEmpty xqtl file" << endl;
 		exit(0);
 	}
-
 	string line_list[100];
 	split_line(line_list,line);
 	string name = line_list[1];
 	string last_name;
 	file[0].start = pos_s;
 	file[0].chrom = atoi(line_list[0].c_str());
-	long long cursor = 0;
+	long long int cursor = 0;
+
+
 
 	while(true)
 	{
@@ -57,7 +59,6 @@ void reorganize_xqtl(long long int num,string Xqtl_path , map<string,long long i
 		init_line_list(line_list);
 		split_line(line_list,line);
 		name = line_list[1];
-
 		if(last_name != name)
 		{
 			file[cursor].name = last_name;
@@ -98,20 +99,6 @@ void reorganize_xqtl(long long int num,string Xqtl_path , map<string,long long i
 	}
 	
 	fin2.close();
-
-
-	ifstream finr("tem");
-	ofstream finw(Xqtl_path.c_str());
-	getline(finr , line);
-	while(line != "")
-	{
-		finw << line << endl;
-		getline(finr , line);
-	}
-
-	finr.close();
-	finw.close();
-	remove("tem");
 }
 
 bool gzLoadVcfFile(char* tem , const char* gzfn , map<string,long long int>* p_VcfIndex ,vector<string>* p_VcfFile )
@@ -597,7 +584,7 @@ void filter_snps(string file_name , string last_name , vector<snps> *p_origin_ty
 				&& allele[1] == (*p_origin_typed_snps)[i].ref_allele )) )
 				
 				{
-					if(isnan((*p_origin_typed_snps)[i].zscore) == true)
+					if(std::isnan((*p_origin_typed_snps)[i].zscore) == true)
 					{
 						(*p_ignore_snps).push_back((*p_origin_typed_snps)[i]);
 					}
@@ -786,6 +773,7 @@ int travel_Xqtl(long long int start , long long int end ,
 	if(batch_size == 0)
 	{
 		real_batch = counter;
+		batch_size = 1;
 	}
 	else
 	{

@@ -9,13 +9,11 @@
 #include <vector>
 #include <map> 
 #include <stdlib.h>
-#include <math.h>
 #include <zlib.h> 
 #include <list>
 #include <time.h>
 #include<sys/stat.h>
 #include<sys/types.h>
-#include <algorithm>
 #include "utils.h" 
 
 typedef struct {

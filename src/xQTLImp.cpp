@@ -340,7 +340,6 @@ int main(int argc , char *argv[])
 	{
 		chr = int(atoi(CHR));
 	}
-
 	//load pos_map
 	cout << "Loading molecular annotation file ... ";
 	map<string,long long int*> pos1;
@@ -352,7 +351,7 @@ int main(int argc , char *argv[])
 	cout << "Reorganizing xQTL file ... ";
 	reorganize_xqtl(anno_num , Xqtl_path , pos_map);
 	cout << "Done!" << endl;
-	
+	Xqtl_path = "tem";
 	int chrom_num = split_chrom(Xqtl_path , chrom);
 	int total_num = 0;
 	for(int j = 1;j <= chrom_num;j++)
@@ -476,6 +475,7 @@ int main(int argc , char *argv[])
 	
 	
 	cout << "Imputation processes have been Successfully Finished!\n";
+	remove(Xqtl_path.c_str());
 	
 	return 0;
 }

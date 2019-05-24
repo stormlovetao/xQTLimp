@@ -1,7 +1,7 @@
 #ifndef IMPUTE_H
 #define IMPUTE_H
 #include <iostream>
-#include <cmath>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
