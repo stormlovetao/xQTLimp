@@ -96,7 +96,7 @@ xQTLImp
 -w, --window_size    window_size    # int, Window size N, +-N/2 apart from molecular center pos, 500Kb in default.
 ```
 *Notes* 
-* ```-e or --exclude``` is useful for users to exclude genome regions they want to ignore, such as the complex human MHC region (chr6:28,477,797-33,448,354 in hg19), which will tremendously slow down the imputation process because of high density of genomic markers. 
+* ```-e or --exclude``` is useful for users to exclude genome regions they want to ignore, such as the complex human HLA region (6:25000000-35000000 in hg19), which will tremendously slow down the imputation process because of high density of genomic markers. 
 * Combining ```-c or --chr``` with ```-t or --num_threads``` could greatly save time for users by taking advantage of HPC. For example, on a slurm based cluster, the following script named *Cluster_sample.sh* can be submitted onto multiple nodes with multiple threads:
 
 ```bash
@@ -112,7 +112,7 @@ Path_to_xQTLImp/src/xQTLImp             \
 -m your_path/molecular_annotation_file  \
 -v your_path/1000G_ref_panel/           \
 -o your_output_folder_path/             \
--e 6:28477797-33448354                  \
+-e 6:25000000-35000000                  \
 -c $chr                                 \
 -t 16
 
