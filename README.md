@@ -60,7 +60,7 @@ ENSG00000237613.2	| 34554	| 36081
 
 
 #### 3. xQTL summary statistics
-This file includes summary statistics associated with pairs of variants and molecular traits. The xQTL file should start with a line that contains at least 6 columns (column names can be changed) – chromosome , molecular_ID, variant_pos , ref_allele , alt_allele , z_statistics ...(optional columns), followed by lines of data entries . Each field of data entries must be separated by tab or white spaces. Data entries should be sorted at least by chromosome number in increasing order, and records with same molecular_ID should be grouped together. We recommend users to sort the xQTL file by chr, molecular_start, and variant_pos in increasing order prior imputation. Users can also specify ```--sort=TRUE``` if their input xQTL file is not sorted properly.</br>
+This file includes summary statistics associated with pairs of variants and molecular traits. The xQTL file should start with a line that contains at least 6 columns (column names can be changed) – chromosome , molecular_ID, variant_pos , ref_allele , alt_allele , z_statistics ...(optional columns), followed by lines of data entries . Each field of data entries must be separated by tab or white spaces. Data entries should be sorted at least by chromosome number in increasing order, and records with same molecular_ID should be grouped together. We recommend users to sort the xQTL file by chr, molecular_start_pos, and variant_pos in increasing order prior imputation. Users can also specify ```--sort=TRUE``` if their input xQTL file is not sorted properly.</br>
 ##### Example:
 `chromosome` | `molecular_ID` | `variant_pos` | `ref_allele` | `alt_allele` | `z_statistics`
 --|--|--|--|--|--
@@ -71,8 +71,7 @@ This file includes summary statistics associated with pairs of variants and mole
 
 *Notes:* </br>
 * xQTLImp only handle cis-xQTL associations because of the nature of LD, so variant and molecule should be on the some chromosome. </br>
-* The coordinates of variants and molecules should be in same genome build (e.g. hg19).
-* The variant positions associated with each molecule should be in order.
+* The coordinates of variants and molecules should be always in same genome build (e.g. hg19).
 * The Z statistic should be computed as the effect of the same type of allele (Ref or Alt) for all data entries (i.e. The effect allele is Ref allele or Alt allele).  And the effect allele of imputed variants will be the same type of effect allele as the inputs.
 * The sign of Z statistics will be converted by xQTLImp if the user provided <ref, alt> alleles are in opposite to that in reference panel.
 * Data entries (input lines) would not be used for imputation if xQTLImp cannot locate the variant on reference panel, but they will still be written into outputs without loss of information. 
