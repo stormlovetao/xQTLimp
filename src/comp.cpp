@@ -401,7 +401,7 @@ void organize_files(int chrom , string out , map<string,long long int*> pos_map)
 		
 
 		fclose(fp);
-		rmdir(new_path1.c_str());
+		remove(new_path1.c_str());
 
 
 
