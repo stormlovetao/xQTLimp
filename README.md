@@ -60,7 +60,7 @@ ENSG00000237613.2	| 34554	| 36081
 
 
 #### 3. xQTL summary statistics
-This file includes summary statistics associated with pairs of variants and molecular traits. The xQTL file should start with a line that contains at least 6 columns – chromosome , molecular_ID, variant_pos , ref_allele , alt_allele , z_statistics ...(optional columns),followed by lines of data entries. Each field of data entries must be separated by tab or white spaces. Header names can be changed. Data entries should be sorted at least by chromosome number in increasing order, and genes are recommended to be sorted by their positions in increasing order. Users can specify ```--sort=TRUE``` if their input xQTL file is not sorted properly.</br>
+This file includes summary statistics associated with pairs of variants and molecular traits. The xQTL file should start with a line that contains at least 6 columns (column names can be changed) – chromosome , molecular_ID, variant_pos , ref_allele , alt_allele , z_statistics ...(optional columns), followed by lines of data entries . Each field of data entries must be separated by tab or white spaces. Data entries should be sorted at least by chromosome number in increasing order, and records with same molecular_ID should be grouped together. We recommend users to sort the xQTL file by chr, molecular_start, and variant_pos in increasing order prior imputation. Users can also specify ```--sort=TRUE``` if their input xQTL file is not sorted properly.</br>
 ##### Example:
 `chromosome` | `molecular_ID` | `variant_pos` | `ref_allele` | `alt_allele` | `z_statistics`
 --|--|--|--|--|--
