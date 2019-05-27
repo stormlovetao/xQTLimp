@@ -325,7 +325,10 @@ void make_output_dir(long long int chrom[] , int chrom_num , char *Out , int chr
 			string new_path = path;
 			sprintf(tem , "%d" , i);
 			string new_path1 = (new_path + '.' + string(tem));
-			mkdir(new_path1.c_str() , 0777);	
+			if(NULL == opendir(new_path1.c_str()))
+			{
+				mkdir(new_path1.c_str() , 0777);	
+			}
 		}
 
 
@@ -354,15 +357,18 @@ void organize_files(int chrom , string out , map<string,long long int*> pos_map)
   
  	           	if (ent->d_type==8)
  			 {
-				files[cursor].name = string(ent -> d_name);
-				files[cursor].l_win = pos_map[string(ent -> d_name)][0];
-				files[cursor].r_win = pos_map[string(ent -> d_name)][1];
-				files[cursor].chrom = chrom;
-				cursor++;
-				if(cursor == 10000)
+				if(pos_map.count(ent -> d_name) == 1)
 				{
-					cout << "Too much records!" << endl;
-					exit(0); 
+					files[cursor].name = string(ent -> d_name);
+					files[cursor].l_win = pos_map[string(ent -> d_name)][0];
+					files[cursor].r_win = pos_map[string(ent -> d_name)][1];
+					files[cursor].chrom = chrom;
+					cursor++;
+					if(cursor == 10000)
+					{
+						cout << "Too much records!" << endl;
+						exit(0); 
+					}
 				}
 				
 			}
@@ -416,7 +422,8 @@ void print_usage (FILE * stream, int exit_code)
 	"-c --chr\t\t Only impute the chromosome user specified\n"
 	"-w --window_size \t Window size N, +-N/2 apart from molecular start pos, 500Kb in default.\n"
 	"-e --exclude\t\t the range don't need imputation, the format is chr:start-end\n"
-	"-b --exclude_file\t record the range don't need imputaion for more than one chromosome,the format is chr start end ...(optional) ... for each line\n");
+	"-b --exclude_file\t record the range don't need imputaion for more than one chromosome,the format is chr start end ...(optional) ... for each line\n"
+	"-s --sort\t\t reorganize the xQTL file,False in default");
 
 	exit (exit_code);
 }

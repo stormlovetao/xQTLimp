@@ -174,8 +174,9 @@ int main(int argc , char *argv[])
 	char* CHR = NULL;
 	char* EXCLUDE = NULL;
 	char* EXCLUDE_FILE = NULL;
+	char* SORT = NULL;
 
-	const char *const short_options = "hx:m:v:o:t:f:l:w:c:e:b:";
+	const char *const short_options = "hx:m:v:o:t:f:l:w:c:e:b:s:";
 	const struct option long_options[] = {
 	{"help", 0, NULL, 'h'},
 	{"xQTL", 1, NULL, 'x'},
@@ -189,6 +190,7 @@ int main(int argc , char *argv[])
 	{"Chr",1,NULL,'c'},
 	{"exclude" , 1 , NULL , 'e'},
 	{"exclude_file" , 1  , NULL , 'b'},
+	{"sort" , 1 , NULL , 's'},
 	{NULL, 0, NULL, 0 }
 	};
 
@@ -243,6 +245,9 @@ int main(int argc , char *argv[])
 			case 'b'://region for imputation
 				EXCLUDE_FILE = (char*)strdup(optarg);
 				break;
+			case 's'://region for imputation
+				SORT = (char*)strdup(optarg);
+				break;
 			case '?':
 				print_usage (stdout, 1);
 				break;
@@ -266,6 +271,7 @@ int main(int argc , char *argv[])
 	string out = string(Out);
 	string exclude =  "";
 	string exclude_file = "";
+	string sort_flag = "";
 	int exclude_flag = 0;
 	int exclude_file_flag = 0;
 	int batch = 1;
@@ -340,18 +346,48 @@ int main(int argc , char *argv[])
 	{
 		chr = int(atoi(CHR));
 	}
+
+	if(SORT == NULL)
+	{
+		sort_flag = "False";	
+	}
+	else
+	{
+		if(sort_flag != "True" || sort_flag != "False")
+		{
+			cout << "wrong parameter for --sort/-s\n";
+			exit(0);
+		}
+		sort_flag = string(SORT);
+	}
+	
 	//load pos_map
 	cout << "Loading molecular annotation file ... ";
 	map<string,long long int*> pos1;
 	map<string,long long int*> *pos_map = &pos1; 
-	long long int anno_num =load_pos_map(annotation , pos_map);	
+	long long int anno_num = load_pos_map(annotation , pos_map);	
 	 cout << "Done!" << endl;	
 	//seperate chrom
 	long long int chrom[1261];
-	cout << "Reorganizing xQTL file ... ";
-	reorganize_xqtl(anno_num , Xqtl_path , pos_map);
-	cout << "Done!" << endl;
-	Xqtl_path = "tem";
+	if("False" == sort_flag)
+	{
+		//do nothing
+	}
+	else
+	{
+		cout << "Reorganizing xQTL file ... ";
+		reorganize_xqtl(anno_num , Xqtl_path , pos_map , chr , out);
+		cout << "Done!" << endl;
+		if(chr == -1)
+		{
+			Xqtl_path = out + ".input_xQTL_name.sorted.tmp";
+		}
+		else
+		{
+			Xqtl_path = out + "." + string(CHR) + "/.input_xQTL_name.sorted.chr.tmp";
+		}			
+	
+	}
 	int chrom_num = split_chrom(Xqtl_path , chrom);
 	int total_num = 0;
 	for(int j = 1;j <= chrom_num;j++)
@@ -366,7 +402,7 @@ int main(int argc , char *argv[])
 
 	make_output_dir(chrom , chrom_num , Out , chr);
 
-	
+
 
 	for(int i = 1;i <= chrom_num;i++)
 	{
@@ -475,7 +511,20 @@ int main(int argc , char *argv[])
 	
 	
 	cout << "Imputation processes have been Successfully Finished!\n";
-	remove(Xqtl_path.c_str());
+	if("True" == sort_flag)
+	{
+		if(chr == -1)
+		{
+			remove(Xqtl_path.c_str());
+		}
+		else
+		{
+			remove(Xqtl_path.c_str());
+			string out_dir = out + "." + string(CHR);
+			remove(out_dir.c_str());
+		}
+	}
+
 	
 	return 0;
 }

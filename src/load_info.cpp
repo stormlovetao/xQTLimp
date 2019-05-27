@@ -4,7 +4,7 @@
 
 
 
-void reorganize_xqtl(long long int num,string Xqtl_path , map<string,long long int*> *pos_map)
+void reorganize_xqtl(long long int num,string Xqtl_path , map<string,long long int*> *pos_map ,int chr , string out)
 {
 	file_record file[100000];
 	ifstream fin(Xqtl_path.c_str());
@@ -82,11 +82,22 @@ void reorganize_xqtl(long long int num,string Xqtl_path , map<string,long long i
 
 	sort(file,file + cursor,my_cmp);	
 
-
-
+	char c_chr[10];
+	sprintf(c_chr , "%d" , chr);
+	string tem_file = "";
+	if(chr == -1)
+	{
+		tem_file = out + ".input_xQTL_name.sorted.tmp";
+	}
+	else
+	{
+		string tem_dir = out + "." + string(c_chr);
+		mkdir(tem_dir.c_str() , 0777);	
+		tem_file = tem_dir + "/.input_xQTL_name.sorted.chr.tmp";
+	}			
 	ifstream fin1(Xqtl_path.c_str());
 	getline(fin1 , line);	
-	ofstream fin2("tem");	
+	ofstream fin2(tem_file);	
 	fin2 << line << endl;
 	for(long long int i = 0;i < cursor;i++)
 	{
