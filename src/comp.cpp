@@ -371,7 +371,7 @@ void organize_files(vector<string>* p_files , int chrom , string out , map<strin
 		
 
 		fclose(fp);
-		remove(new_path1.c_str());
+		rmdir(new_path1.c_str());
 
 
 
