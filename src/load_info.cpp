@@ -740,7 +740,7 @@ void gen_map_hap(string ref_file , string last_name ,  vector<ref_snp> *p_snp_ma
 	}
 	fin.close();
 }
-int travel_Xqtl(long long int start , long long int end ,
+int travel_Xqtl(vector<string>* p_files , long long int start , long long int end ,
 			string Xqtl_path ,vector<long long int>* p_batch_bonder , int batch)
 {
 	int real_batch = 0;
@@ -752,6 +752,7 @@ int travel_Xqtl(long long int start , long long int end ,
 	string line_list[100];
 	split_line(line_list,line);
 	string name = line_list[1];
+	(*p_files).push_back(name);
 	string last_name;
 	while(fin.tellg() != end)
 	{
@@ -772,6 +773,7 @@ int travel_Xqtl(long long int start , long long int end ,
 		}
 		else
 		{
+			(*p_files).push_back(name);
 			counter++;
 		}
 	}

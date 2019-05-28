@@ -429,6 +429,7 @@ int main(int argc , char *argv[])
 		printf("Loading reference VCF file of chromosome No.%d ... ",i);
 		map<string,long long int> VcfIndex;
 		map<string,long long int>* p_VcfIndex = &VcfIndex;
+
 		vector<string> VcfFile;
 		vector<string>* p_VcfFile = &VcfFile;
 		
@@ -456,8 +457,11 @@ int main(int argc , char *argv[])
 			
 		vector<long long int> batch_bonder;
 		vector<long long int>* p_batch_bonder = &batch_bonder;
-		int real_batch = travel_Xqtl(start ,end ,Xqtl_path ,p_batch_bonder , batch);
-				
+
+		vector<string> files;
+		vector<string>* p_files = &files;
+
+		int real_batch = travel_Xqtl(p_files , start ,end ,Xqtl_path ,p_batch_bonder , batch);	
 		///////////////////////////////////////// 
 		
 		sem_t  bin_sem;    //set Semaphore
@@ -504,8 +508,7 @@ int main(int argc , char *argv[])
     	
 		printf("Imputation on chromosome No.%d finished!\n",chrom);
 		printf("Finalizing output files ... ");
-	
-		organize_files(chrom , out , pos1);
+		organize_files(p_files , chrom , out , pos1);
 		cout << "Done!" << endl;
 	}
 	

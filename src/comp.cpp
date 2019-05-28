@@ -337,9 +337,8 @@ void make_output_dir(long long int chrom[] , int chrom_num , char *Out , int chr
 	
 }
 
-void organize_files(int chrom , string out , map<string,long long int*> pos_map)
+void organize_files(vector<string>* p_files , int chrom , string out , map<string,long long int*> pos_map)
 {
-		file_record files[10000];
 		int cursor = 0;
 		string new_path = out;
 		char tem[10];
@@ -349,49 +348,20 @@ void organize_files(int chrom , string out , map<string,long long int*> pos_map)
 	//	cout << out_file << endl;
 		FILE* fp = fopen(out_file.c_str() , "w");
 		fprintf(fp, "Chr Molecular_ID Molecular_Start Molecular_End Variant_ID Variant_pos Variant_Ref Variant_Alt Z-Statistic R2pred Imputation_flag\n");
-		struct dirent* ent = NULL;
-   	 	DIR *pDir;
-   	 	pDir=opendir(new_path1.c_str());
-    		while (NULL != (ent=readdir(pDir)))
-    		{
-  
- 	           	if (ent->d_type==8)
- 			 {
-				if(pos_map.count(ent -> d_name) == 1)
-				{
-					files[cursor].name = string(ent -> d_name);
-					files[cursor].l_win = pos_map[string(ent -> d_name)][0];
-					files[cursor].r_win = pos_map[string(ent -> d_name)][1];
-					files[cursor].chrom = chrom;
-					cursor++;
-					if(cursor == 10000)
-					{
-						cout << "Too much records!" << endl;
-						exit(0); 
-					}
-				}
-				
-			}
-            		else
-            		{
-            		}
-      
-  		}
 
-		sort(files , files + cursor , my_cmp);
-		for(int i = 0;i < cursor;i++)
+
+		for(int i = 0 ; i < (*p_files).size() ; i++)
 		{
-			string file_path = new_path1 + files[i].name;
+			string file_path = new_path1 + (*p_files)[i];
 			ifstream fin(file_path.c_str());
 			string line;
 			getline(fin,line);
-
 			getline(fin,line);
-			long long int start = pos_map[files[i].name][0];
-			long long int end = pos_map[files[i].name][1];
+			long long int start = pos_map[(*p_files)[i]][0];
+			long long int end = pos_map[(*p_files)[i]][1];
 			while(line != "")
 			{
-				fprintf(fp, "%s %s %lld %lld %s\n"  ,tem , files[i].name.c_str() , start , end , line.c_str());
+				fprintf(fp, "%s %s %lld %lld %s\n"  ,tem , (*p_files)[i].c_str() , start , end , line.c_str());
 				getline(fin , line);
 			}
 			fin.close();

@@ -38,7 +38,7 @@ void gen_map_hap(string ref_file , string las_name ,  vector<ref_snp> *p_snp_map
 			vector<string>*p_hap , long long int window[2],
 			map<string,long long int>* p_VcfIndex,
   						 vector<string>* p_VcfFile);
-int travel_Xqtl(long long int start , long long int end ,
+int travel_Xqtl(vector<string>* p_files , long long int start , long long int end ,
 			string Xqtl_path ,vector<long long int>* p_batch_bonder ,int batch);
 void reorganize_xqtl(long long int num , string Xqtl_path,map<string,long long int*> *pos_map,int chr , string out);
 
