@@ -1,4 +1,4 @@
-#include <pthread.h> 
+#include <pthread.h>
 #include <semaphore.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -6,18 +6,18 @@
 #include "impute.h"
 #include "load_info.h"
 #include "comp.h"
-#include "utils.h" 
+#include "utils.h"
 
 
 struct thread_data{
    map<string,long long int>* p_VcfIndex;
    vector<string>* p_VcfFile;
    map<string,long long int*> *pos_map;
-   int chrom; 
-   string Xqtl_path; 
+   int chrom;
+   string Xqtl_path;
    string ref_file;
    string out_dir;
-   long long int start; 
+   long long int start;
    long long int end;
    sem_t * bin_sem;
   double maf;
@@ -32,17 +32,17 @@ void *main_process(void *threadarg)
    	map<string,long long int>* p_VcfIndex = my_data -> p_VcfIndex;
    	vector<string>* p_VcfFile = my_data -> p_VcfFile;
    	map<string,long long int*> *pos_map = my_data -> pos_map;
-   		
-   	string ref_file = my_data -> ref_file; 
-   	string Xqtl_path = my_data -> Xqtl_path; 
+
+   	string ref_file = my_data -> ref_file;
+   	string Xqtl_path = my_data -> Xqtl_path;
    	string out_dir = my_data -> out_dir;
-   	long long int start = my_data -> start; 
+   	long long int start = my_data -> start;
    	long long int end = my_data -> end;
 	int window_size = my_data -> window_size;
    	int chrom = my_data -> chrom;
 	double maf = my_data -> maf;
 	double lam  = my_data -> lam;
-		
+
 	ifstream fin(Xqtl_path.c_str());
 	fin.seekg(start);
 	string line;
@@ -56,24 +56,24 @@ void *main_process(void *threadarg)
 	vector<snps> *p_ignore_snps = &ignore_snps;
 	vector<ref_snp> snp_map;
 	vector<ref_snp> *p_snp_map = &snp_map;
-	
+
 	vector<string> hap;
-	vector<string> *p_hap = &hap; 
-	 
+	vector<string> *p_hap = &hap;
+
 	//start extract
 	getline(fin,line);
 	string line_list[100];
 	split_line(line_list,line);
 	string name = line_list[1];
 	string last_name;
-	record_all(p_origin_typed_snps , line_list[2] , line_list[3] , line_list[4] , line_list[5]);	
+	record_all(p_origin_typed_snps , line_list[2] , line_list[3] , line_list[4] , line_list[5]);
 	//record the molecular
-	
+
 	map<long long int , int> m_all_snps ;
 	map<long long int , int> m_typed_snps ;
 	map<long long int , int> *p_m_all_snps = &m_all_snps;
 	map<long long int , int> *p_m_typed_snps = &m_typed_snps;
-		
+
 		ans values;
 		values.last_sigma_it = NULL;
 		values.weight = NULL;
@@ -94,17 +94,17 @@ void *main_process(void *threadarg)
 			if(last_name != name || 1 == flag)
 			{
 			//calculate window
-				long long int window[2]; 
+				long long int window[2];
 				calculate_window(window_size , window , last_name , pos_map);
-			
+
 			// 1.split origin_typed_snps into typed_snps
 			//and unuseful snps(wrong and special type)
 				filter_snps(ref_file , last_name,p_origin_typed_snps ,
-						 p_typed_snps , p_ignore_snps,window , p_VcfIndex,p_VcfFile); 
-			//2.search  annotation map and pos file dict to generate 
+						 p_typed_snps , p_ignore_snps,window , p_VcfIndex,p_VcfFile);
+			//2.search  annotation map and pos file dict to generate
 			//.map and .hap vector with .vcf
 				gen_map_hap(ref_file , last_name , p_snp_map , p_hap , window,p_VcfIndex,p_VcfFile);
-			//3.impute process		
+			//3.impute process
 				size_t num_typed_snps = typed_snps.size();
 				size_t num_total_snps = snp_map.size();
 				vector<char> convert_flags;
@@ -113,41 +113,41 @@ void *main_process(void *threadarg)
 				impute_flags.resize(num_total_snps, 1);
 				mark_snps(typed_snps, snp_map, convert_flags, impute_flags);
     			// convert z-score
-				for(size_t i = 0; i < num_typed_snps; i++) 
+				for(size_t i = 0; i < num_typed_snps; i++)
 				{
-					if(convert_flags[i] == 1) 
+					if(convert_flags[i] == 1)
 					{
 						typed_snps[i].zscore *= -1.0;
 					}
-				}	
+				}
 				vector<long long int> useful_typed_snps;
 				vector<long long int>* p_useful_typed_snps = &useful_typed_snps;
 				vector<int> snps_flag;
-				vector<int>* p_snps_flag = &snps_flag;	
-				values = zgenbt(p_maf_snps , maf , lam , p_snps_flag ,typed_snps, snp_map , convert_flags , impute_flags , 
+				vector<int>* p_snps_flag = &snps_flag;
+				values = zgenbt(p_maf_snps , maf , lam , p_snps_flag ,typed_snps, snp_map , convert_flags , impute_flags ,
 											hap , p_useful_typed_snps,
 				p_m_all_snps,p_m_typed_snps,values.last_sigma_it,values.row);
 
-				impz(p_maf_snps , p_ignore_snps , chrom , out_dir , last_name , p_snps_flag , values.weight ,typed_snps, snp_map , impute_flags ,p_useful_typed_snps );	
+				impz(p_maf_snps , p_ignore_snps , chrom , out_dir , last_name , p_snps_flag , values.weight ,typed_snps, snp_map , impute_flags ,p_useful_typed_snps );
 				//final.start new recorder
 				clean_all_vector(p_maf_snps , p_origin_typed_snps , p_typed_snps ,
 								p_ignore_snps , p_snp_map , p_hap ,p_useful_typed_snps , p_snps_flag);
-				
+
 				if(1 == flag)
 				{
 					break;
 				}
-				record_all(p_origin_typed_snps , line_list[2] , line_list[3] , line_list[4] , line_list[5]);				
-			} 
+				record_all(p_origin_typed_snps , line_list[2] , line_list[3] , line_list[4] , line_list[5]);
+			}
 			else
 			{
 				record_all(p_origin_typed_snps , line_list[2] , line_list[3] , line_list[4] , line_list[5]);
-		
+
 				//record it into origin_typed_snps
 			}
-		} 
+		}
 		fin.close();
-		
+
 		for(int i = 0;i < (values.row);i++)
 		{
 			free(values.last_sigma_it[i]);
@@ -155,12 +155,12 @@ void *main_process(void *threadarg)
 		free(values.last_sigma_it);
 		m_all_snps.clear();
 		m_typed_snps.clear();
-		
+
 		sem_post(my_data -> bin_sem); //信号量+1
 
 }
 
-int main(int argc , char *argv[]) 
+int main(int argc , char *argv[])
 {
 	char opt;
 	char* Annotation;
@@ -184,7 +184,7 @@ int main(int argc , char *argv[])
 	{"VCF", 1, NULL, 'v'},
 	{"output", 1, NULL, 'o'},
 	{"threads", 1, NULL, 't'},
-	{"MAF_cutoff", 1, NULL, 'f'}, 
+	{"MAF_cutoff", 1, NULL, 'f'},
 	{"lambda", 1, NULL, 'l'},
 	{"window_size", 1, NULL, 'w'},
 	{"Chr",1,NULL,'c'},
@@ -226,7 +226,7 @@ int main(int argc , char *argv[])
 				break;
 			case 't': // threads number， 1 in default
 				BATCH = (char*)strdup(optarg);
-				break;	
+				break;
 			case 'f': // MAF threshold for variants in reference panel, 0.01 in default
 				MAF = (char*)strdup(optarg);
 				break;
@@ -264,7 +264,7 @@ int main(int argc , char *argv[])
 		 }
 		counter++;
 	} while (next_option != -1);
-	
+
 	string annotation = string(Annotation);
 	string Xqtl_path = string(XQTL_path);
 	string vcf_prefix = string(Vcf_prefix);
@@ -282,7 +282,7 @@ int main(int argc , char *argv[])
 
 	if(EXCLUDE == NULL)
 	{
-		
+
 	}
 	else
 	{
@@ -292,7 +292,7 @@ int main(int argc , char *argv[])
 
 	if(EXCLUDE_FILE == NULL)
 	{
-		
+
 	}
 	else
 	{
@@ -300,7 +300,7 @@ int main(int argc , char *argv[])
 		exclude_file_flag = 1;
 	}
 
-	
+
 	if(BATCH == NULL)
 	{
 		batch = 1;
@@ -349,25 +349,25 @@ int main(int argc , char *argv[])
 
 	if(SORT == NULL)
 	{
-        	sort_flag = "False";
+        sort_flag = "False";
 	}
 	else
 	{
 		sort_flag = string(SORT);
 	}
 
-        if(!(sort_flag == "True" || sort_flag == "False"))
-        {
-             	cout << "wrong parameter for --sort/-s\n";
-        	exit(0);
-    	}
-	
+    if(!(sort_flag == "True" || sort_flag == "False"))
+    {
+        cout << "wrong parameter for --sort/-s\n";
+        exit(0);
+    }
+
 	//load pos_map
 	cout << "Loading molecular annotation file ... ";
 	map<string,long long int*> pos1;
-	map<string,long long int*> *pos_map = &pos1; 
-	long long int anno_num = load_pos_map(annotation , pos_map);	
-	 cout << "Done!" << endl;	
+	map<string,long long int*> *pos_map = &pos1;
+	long long int anno_num = load_pos_map(annotation , pos_map);
+	 cout << "Done!" << endl;
 	//seperate chrom
 	long long int chrom[1261];
 	if("False" == sort_flag)
@@ -386,8 +386,8 @@ int main(int argc , char *argv[])
 		else
 		{
 			Xqtl_path = out + "." + string(CHR) + "/.input_xQTL_name.sorted.chr.tmp";
-		}			
-	
+		}
+
 	}
 	int chrom_num = split_chrom(Xqtl_path , chrom);
 	int total_num = 0;
@@ -420,12 +420,12 @@ int main(int argc , char *argv[])
 		}
 		long long int start = chrom[i - 1];
 		long long int end = chrom[i];
-		
+
 		if(start == end)
 		{
 			continue;
 		}
-			
+
 		//load pos_file_map
 		printf("Loading reference VCF file of chromosome No.%d ... ",i);
 		map<string,long long int> VcfIndex;
@@ -433,12 +433,12 @@ int main(int argc , char *argv[])
 
 		vector<string> VcfFile;
 		vector<string>* p_VcfFile = &VcfFile;
-		
+
 		char tem[3];
 		sprintf(tem , "%d" , i);
 		string ref_file = vcf_prefix;
 		bool load = false;
-		
+
 		if(exclude_flag == 1)
 		{
 			load = gzLoadVcfFile_exclude( exclude , tem , ref_file.c_str() ,p_VcfIndex ,p_VcfFile );
@@ -449,29 +449,29 @@ int main(int argc , char *argv[])
 		}
 		else
 		{
-			load = gzLoadVcfFile(tem , ref_file.c_str() ,p_VcfIndex ,p_VcfFile );			
+			load = gzLoadVcfFile(tem , ref_file.c_str() ,p_VcfIndex ,p_VcfFile );
 		}
 
-		cout << "Done!\n";	
-		
+		cout << "Done!\n";
+
 		/////////////////////////////////////////
-			
+
 		vector<long long int> batch_bonder;
 		vector<long long int>* p_batch_bonder = &batch_bonder;
 
 		vector<string> files;
 		vector<string>* p_files = &files;
 
-		int real_batch = travel_Xqtl(p_files , start ,end ,Xqtl_path ,p_batch_bonder , batch);	
-		///////////////////////////////////////// 
-		
+		int real_batch = travel_Xqtl(p_files , start ,end ,Xqtl_path ,p_batch_bonder , batch);
+		/////////////////////////////////////////
+
 		sem_t  bin_sem;    //set Semaphore
 		int res = sem_init(&bin_sem, 0, 0);//init Semaphore
 		if (res != 0)
     		{
         		perror("Semaphore initialization failed");
     		}
-		
+
 		pthread_t tids[real_batch];
 		struct thread_data td[real_batch];
 
@@ -480,7 +480,7 @@ int main(int argc , char *argv[])
 		printf("Partitioning into %d threads ... \n" , batch);
 		for(int ii = 0;ii < real_batch;ii++)
 		{
-			td[ii].bin_sem = &bin_sem; 
+			td[ii].bin_sem = &bin_sem;
 			td[ii].pos_map = pos_map;
 			td[ii].p_VcfIndex =  p_VcfIndex;
 			td[ii].p_VcfFile =  p_VcfFile;
@@ -498,22 +498,22 @@ int main(int argc , char *argv[])
 			if (ret != 0)
         		{
            		cout << "pthread_create error: error_code=" << ret << endl;
-       			}	 
+       			}
 		}
 	// To make sure all sub-threads are finished in each chromosome, because they share the same memory of the reference panel
 		for(int j = 0;j < real_batch;j++)
     		{
-        		sem_wait(&bin_sem);    
+        		sem_wait(&bin_sem);
     		}
     		sem_destroy(&bin_sem);        //release sem
-    	
+
 		printf("Imputation on chromosome No.%d finished!\n",chrom);
 		printf("Finalizing output files ... ");
 		organize_files(p_files , chrom , out , pos1);
 		cout << "Done!" << endl;
 	}
-	
-	
+
+
 	cout << "Imputation processes have been Successfully Finished!\n";
 	if("True" == sort_flag)
 	{
@@ -529,6 +529,6 @@ int main(int argc , char *argv[])
 		}
 	}
 
-	
+
 	return 0;
 }

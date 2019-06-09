@@ -6,6 +6,10 @@
 	{
 		if(a.l_win == b.l_win)
 		{
+			if(a.r_win == b.r_win)
+			{
+				return strcmp(a.name.c_str(),b.name.c_str());
+			}
 			return a.r_win < b.r_win;	
 		}
 

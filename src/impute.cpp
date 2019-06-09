@@ -382,11 +382,11 @@ vector<char> impute_flags,vector<long long int>* p_useful_typed_snps) {
 
 
 		pos_t current_pos = all_snps[idx].snp_pos;
-		pos_t combine_pos;
+		pos_t combine_pos  = -1;
 		if(cursor < combine_len)
 			combine_pos  =  combine[cursor].snp_pos;
 
-		while(cursor < combine_len && combine_pos < current_pos)
+		while(cursor < combine_len && combine_pos <= current_pos)
 		{
 			char posi[10];
 			sprintf(posi , "%lld" , combine[cursor].snp_pos);
@@ -399,34 +399,38 @@ vector<char> impute_flags,vector<long long int>* p_useful_typed_snps) {
 			cursor++;
 			combine_pos  =  combine[cursor].snp_pos;
 		}
+
+			char posi[10];
+			sprintf(posi , "%lld" , all_snps[idx].snp_pos);
+			string var_id = "";
+			var_id  = string(tem) + "_" + string(posi) + "_" + all_snps[idx].ref_allele + "_" + all_snps[idx].alt_allele;
+			double imp_zscore = 0.0;
+			double beta;
+			for(size_t i = 0; i < num_ztyped_snps; i++)
+			{
+				beta = weight[index][i];
+				imp_zscore += beta*(ztyped_snps[i].zscore - exp_zscore_mean);
+			}
+		
+			// get variance
+			double var;
+			var = weight[index][num_ztyped_snps];
+			index++;
+		
+			// print to file
+			if(impute_flags[idx] == 1)
+			fprintf(fout, "%s %lld %s %s %.6lf %.6lf 1\n",
+			var_id.c_str(), all_snps[idx].snp_pos, all_snps[idx].ref_allele.c_str(),
+			all_snps[idx].alt_allele.c_str(), imp_zscore, var);
+			else
+				fprintf(fout, "%s %lld %s %s %.6lf %.6lf 0\n",
+				var_id.c_str(), all_snps[idx].snp_pos, all_snps[idx].ref_allele.c_str(),
+				all_snps[idx].alt_allele.c_str(), imp_zscore, var);
+			
+			
+			
 				
 
-		char posi[10];
-		sprintf(posi , "%lld" , all_snps[idx].snp_pos);
-		string var_id = "";
-		var_id  = string(tem) + "_" + string(posi) + "_" + all_snps[idx].ref_allele + "_" + all_snps[idx].alt_allele;
-		double imp_zscore = 0.0;
-		double beta;
-		for(size_t i = 0; i < num_ztyped_snps; i++){
-			beta = weight[index][i];
-			imp_zscore += beta*(ztyped_snps[i].zscore - exp_zscore_mean);
-		}
-		
-		// get variance
-		double var;
-		var = weight[index][num_ztyped_snps];
-		index++;
-		
-		// print to file
-		if(impute_flags[idx] == 1)
-		fprintf(fout, "%s %lld %s %s %.6lf %.6lf 1\n",
-			var_id.c_str(), all_snps[idx].snp_pos, all_snps[idx].ref_allele.c_str(),
-			all_snps[idx].alt_allele.c_str(), imp_zscore, var);
-		else
-		fprintf(fout, "%s %lld %s %s %.6lf %.6lf 0\n",
-			var_id.c_str(), all_snps[idx].snp_pos, all_snps[idx].ref_allele.c_str(),
-			all_snps[idx].alt_allele.c_str(), imp_zscore, var);
-			
 			
 	}
 	while(cursor < combine_len)
