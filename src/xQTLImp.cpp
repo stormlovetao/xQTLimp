@@ -349,17 +349,18 @@ int main(int argc , char *argv[])
 
 	if(SORT == NULL)
 	{
-		sort_flag = "False";	
+        	sort_flag = "False";
 	}
 	else
 	{
-		if(sort_flag != "True" || sort_flag != "False")
-		{
-			cout << "wrong parameter for --sort/-s\n";
-			exit(0);
-		}
 		sort_flag = string(SORT);
 	}
+
+        if(!(sort_flag == "True" || sort_flag == "False"))
+        {
+             	cout << "wrong parameter for --sort/-s\n";
+        	exit(0);
+    	}
 	
 	//load pos_map
 	cout << "Loading molecular annotation file ... ";
