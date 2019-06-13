@@ -836,12 +836,18 @@ int travel_Xqtl(vector<string>* p_files , long long int start , long long int en
 			num++;
 			if((num - 1) % batch_size == 0)
 			{
-			    b++;
+			    	b++;
 				(*p_batch_bonder).push_back(position);
 				(*p_batch_bonder).push_back(position);			
 			}
 		}
 	}
+
+	if(real_batch != batch)
+	{
+		(*p_batch_bonder)[2 * real_batch - 3] = (*p_batch_bonder)[(*p_batch_bonder).size() - 1];
+	}
+	
 	
 	fin1.close();
 	return real_batch;
