@@ -1,10 +1,12 @@
 # xQTLImp
 ## Introduction
-xQTLImp is an open source software that implements xQTL(such as eQTL, mQTL, haQTL et. al) statistics (i.e Z statistics) imputation across the genome. xQTLImp accepts xQTL summary statistics without the need of individual-level genotypes and molecular features, and could accurately impute novel xQTL associations based on genetic reference panel. The imputation process is performed by modeling variants, within same LD and associated with a certain molecular trait, by using multivariate normal distribution. Novel QTL statistics of variants associated with a molecular trait, say gene *G's* expression level, will be calculated as a weighted linear combination of known statistics of variants associated with G, with the weights reflecting LD relationships (i.e. LD r^2) among those variants (See Methods of Paper). Genetic reference panel such as 1000G, HapMap or user-provided refrence panel in gzipped VCF format is required for LD calculations.
+xQTLImp is an open source software that implements imputation of xQTL(such as eQTL, mQTL, haQTL et. al) statistics (i.e., Z statistics) across the genome. xQTLImp accepts xQTL summary statistics without the need of individual-level genotypes and molecular traits (such as gene expression), and could accurately impute novel xQTL associations from known associations based on linkage disequilibrium (LD) among variants. Specifically, it models the statistics of variants associated with the same molecular trait by using a multivariate Gaussian model, and infers missing association statistics from nearby known association statistics by leveraging LD among variants (See Methods in the paper). Using multiple real datasets, we demonstrated that 1) xQTLImp can impute missing xQTL statistics with high accuracy, and 2) xQTLImp can effiectively reduce the lower bound of MAF in xQTL studies, leading to the discovery of novel xQTL signals to further enhance xQTL discoveries.
 
-In general, xQTLImp can handle any kinds of molecular traits (not limited to gene expression, DNA methylation or histone acetylation) that can be physically mapped onto genomic regions, without limitation in species. Genomic variants such as SNV and small Indel(Insertion/deletion) are both supported. And xQTLImp can be applied in multiple scenarios, such as in performing meta-analysis of multiple eQTL studies which have reported different, but correlated sets of variants. 
+xQTLImp requires as compulsory input data: (1) genotype reference panel (such as 1000G or HapMap) for calculating LD correlations; (2) xQTL summary statistics (Z statistics) measured from associations between genotypes and molecular traits, where variants are identified by genomic coordinates and ref/alt alleles; (3) molecular trait annotation. The output is a list of variant-molecular trait associations, with a imputation flag (1 for novel) and imputation quality score, r2pred $\in$ (0,1). 
 
-xQTLImp is implemented in C++ and released under GNU GPL license. The source code and sample data are freely available for download at current webpage, and can be run on Linux/Unix/windows with C++ environment. To get better performance, xQTLImp can be executed in parallel mode, during which each chromosome will be broken into *N* chunks (*N* = number of threads) with each chunk has similar number of molecules. And on average, xQTLImp will need ~4Gb memory to execute in genome wide , which is easy to be distributed on PC and server.
+xQTLImp could handle various kinds of molecular traits (not limited to gene expression, DNA methylation or histone acetylation) that can be physically mapped onto the genome. Genomic variants including SNV and small Indel (Insertion/deletion) are both supported. xQTLImp allows users to specify chromosome and MAF of variants, discard certain regions (such as HLA region) and run in multiple threads. Regarding the performance, xQTLImp was designed in speed and memory efficient way, and it took 3~4 hours and <4GB memory for the genome-wide imputation on a single-cell eQTL datasets (see Suppl. Notes in the paper), which could be easily distributed on PC and server.
+
+xQTLImp is implemented in C++ and released under GNU GPL license (version 3). The source code and sample data are freely available for download at current webpage, and can be run on cross platforms with proper C++ environment.
 </br>
 
 ##  Building xQTLImp
@@ -31,10 +33,10 @@ for chr in {1..22} ; do
     wget $prefix$chr$suffix  $prefix$chr$suffix.tbi ;
 done
 ```
-The genotype reference VCF files should be separated by chromosomes, and named in the format of 'chr.*N*.XXX.vcf.gz' within a folder. *N* represents for chromosome number, for example 1~26 (X->23, Y->24, XY (Pseudo-autosomal region of X) ->25, MT (Mitochondrial) ->26); XXX represents for any user defined string. Other domain should be freezed in required format. See *Tricks* if you do not want to change your file name. </br>
+The genotype reference VCF files should be separated by chromosomes, and named in the format of 'chr.*N*.XXX.vcf.gz' within a folder. *N* represents for chromosome number (interger), for example 1~26 (X->23, Y->24, XY (Pseudo-autosomal region of X) ->25, MT (Mitochondrial) ->26); XXX represents for any user defined string. Other domain should be freezed in required format. </br>
 </br>
 
-*Notes:* To get better performance and accuracy, we recommend the users to preprocess the genotype reference VCF files. For example, keeping only samples of EUR population if the input xQTL statistics are from subjects of European ancestry, or/and filtering rare and non-biallelic variants since most of the current xQTL studies still focus on common variants due to limited sample size. The example source codes with *[VCFtools](https://github.com/vcftools/vcftools)* are as follows:
+*Notes:* To get better performance and accuracy, we recommend the users to preprocess the genotype reference VCF files. For example, keeping only samples of EUR population if the input xQTL statistics are derived from subjects of European ancestry, or/and filtering rare and non-biallelic variants since most of the current xQTL studies still focus on common variants due to limited sample size. The example source codes with *[VCFtools](https://github.com/vcftools/vcftools)* are as follows:
 
 ```bash
 for chr in {1..22} ; do
@@ -47,12 +49,12 @@ done
 ```
 
 #### 2. Molecule annotation file
-Molecule annotation file gives the physical position of each molecule on reference genome. This annotation file should start with a column name line that contains at least three columns – molecular_ID, start_pos, end_pos ...(optional columns), followed by lines of data entries. Each field of data entries must be separated by tab or white spaces. Header names can be changed.</br>
+Molecule annotation file gives the physical position of each molecule on reference genome. This annotation file should start with a column name line that contains at least three columns – molecular_ID, start_pos, end_pos ...(optional columns), followed by lines of data entries. Each field of data entries must be separated by tab or white spaces. Header names can be different with the example.</br>
 ##### Example:
 
 `molecular_ID`| `start_pos`| `end_pos`
 ------------------|-------|-------
-ENSG00000223972.4	| 11869 |	14412
+ENSG00000223972.4	| 11869 | 14412
 ENSG00000227232.4	| 14363	| 29806
 ENSG00000243485.2	| 29554	| 31109
 ENSG00000237613.2	| 34554	| 36081
@@ -60,7 +62,7 @@ ENSG00000237613.2	| 34554	| 36081
 
 
 #### 3. xQTL summary statistics
-This file includes summary statistics associated with pairs of variants and molecular traits. The xQTL file should start with a line that contains at least 6 columns (column names can be changed) – chromosome , molecular_ID, variant_pos , ref_allele , alt_allele , z_statistics ...(optional columns), followed by lines of data entries . Each field of data entries must be separated by tab or white spaces. Data entries should be sorted at least by chromosome number in increasing order, and records with same molecular_ID should be grouped together. We recommend users to sort the xQTL file by chr, molecular_start_pos, and variant_pos in increasing order prior imputation. Users can also specify ```--sort=TRUE``` if their input xQTL file is not sorted properly.</br>
+This file includes summary statistics associated with pairs of variants and molecular traits. The xQTL file should start with a line that contains at least 6 columns (column names can be different) – chromosome , molecular_ID, variant_pos , ref_allele , alt_allele , z_statistics ...(optional columns), followed by lines of data entries . Each field of data entries must be separated by tab or white spaces. Data entries should be **sorted** at least by chromosome number in increasing order, and records with same molecular_ID should be grouped together. We recommend users to sort the xQTL file by chr, molecular_start_pos, and variant_pos in increasing order prior imputation. Users can also specify ```--sort=TRUE``` if their input xQTL file is not sorted properly.</br>
 ##### Example:
 `chromosome` | `molecular_ID` | `variant_pos` | `ref_allele` | `alt_allele` | `z_statistics`
 --|--|--|--|--|--
@@ -70,7 +72,7 @@ This file includes summary statistics associated with pairs of variants and mole
 ......</br>
 
 *Notes:* </br>
-* xQTLImp only handle cis-xQTL associations because of the nature of LD, so variant and molecule should be on the some chromosome. </br>
+* xQTLImp only handle cis-xQTL associations because of the nature of LD, so variant and molecule should be on the same chromosome. </br>
 * The coordinates of variants and molecules should be always in same genome build (e.g. hg19).
 * The Z statistic should be computed as the effect of the same type of allele (Ref or Alt) for all data entries (i.e. The effect allele is Ref allele or Alt allele).  And the effect allele of imputed variants will be the same type of effect allele as the inputs.
 * The sign of Z statistics will be converted by xQTLImp if the user provided <ref, alt> alleles are in opposite to that in reference panel.
@@ -78,7 +80,7 @@ This file includes summary statistics associated with pairs of variants and mole
 
 
 ### xQTLImp parameters：
-The parameters can be specified by short options (e.g. -h) or long options (e.g. --help), which have same effect. Please see the candidate parameters and explanations as follows:
+The parameters can be specified by short options (e.g. -h) or long options (e.g. --help), which have same effects. Please see the parameters and explanations as follows:
 ```bash
 xQTLImp
 -h, --help           null           # null, to display this usage.
@@ -92,7 +94,7 @@ xQTLImp
 -b, --exclude_file   file_path      # string, multiple genome regions user want to mask during imputation process.
 -f, --MAF_cutoff     MAF_cutoff     # double, minimum MAF threshold for variants in genome reference panel, 0.01 in default.
 -l, --lambda_value   lambda_value   # double, a constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default. 
--w, --window_size    window_size    # int, Window size N, +-N/2 apart from molecular center pos, 500Kb in default.
+-w, --window_size    window_size    # int, Window size N, +-N/2 apart from molecular center pos, in base pair, 500000bp in default.
 ```
 *Notes* 
 * ```-e or --exclude``` is useful for users to exclude genome regions they want to ignore, such as the complex human HLA region (6:25000000-35000000 in hg19), which will tremendously slow down the imputation process because of high density of genomic markers. 
@@ -122,7 +124,7 @@ done
 ```
 
 ### Running sample data
-The sample data is generated from [GTEx](https://gtexportal.org/home/index.html) cis-eQTL results from Brain Amygdala downloaded in January 2019. We selected 49 genes with all associated variants (Pvalue < 1) from chromosome 1.
+The sample data is generated from [GTEx](https://gtexportal.org/home/index.html) cis-eQTL results from Brain Amygdala downloaded in January 2019. We randomly sampled a list of genes with all associated variants (Pvalue < 1) from chromosome 1.
 
 ```bash
 cd ./src ; make; cd .. # compliling under src folder
@@ -159,15 +161,4 @@ During the implementation of xQTLImp, we referenced the following works:
 # xcrun: error: invalid active developer path (/Library/Developer/CommandLineTools), missing xcrun at: /Library/Developer/CommandLineTools/usr/bin/xcrun
 # which means you need to install proper C++ compiling environment. Installing XCode can fix this problem, open a Terminal and run this command:
 xcode-select --install
-```
-
-## Tricks
-If you do not want to rename the VCF file names of the reference panel, you can simply creat softlinks for them in our required format. For example:
-```bash
-# Source VCF files are in the path of:
-${source_vcf_path}/EUR.MAF01.Biallele.chr[1..22].PASS_only.vcf.gz
-# And you can create softlinks for those VCF files in a new path, and use the new folder path for input:
-for chr in {1..22} ; do
-	ln -s ${source_vcf_path}/EUR.MAF01.Biallele.chr${chr}.PASS_only.vcf.gz ${soft_links_path}/chr.${chr}.EUR_MAF01_Biallele_PASS_only.vcf.gz
-done
 ```
