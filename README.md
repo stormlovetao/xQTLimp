@@ -96,7 +96,7 @@ xQTLImp
 -l, --lambda_value   lambda_value   # double, a constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default. 
 -w, --window_size    window_size    # int, Window size N, +-N/2 apart from molecular center pos, in base pair, 500000bp in default.
 ```
-*Notes* 
+*Notes:* 
 * ```-e or --exclude``` is useful for users to exclude genome regions they want to ignore, such as the complex human HLA region (6:25000000-35000000 in hg19), which will tremendously slow down the imputation process because of high density of genomic markers. 
 * Combining ```-c or --chr``` with ```-t or --num_threads``` could greatly save time for users by taking advantage of HPC. For example, on a slurm based cluster, the following script named *Cluster_sample.sh* can be submitted onto multiple nodes with multiple threads:
 
