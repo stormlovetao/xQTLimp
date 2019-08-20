@@ -17,7 +17,7 @@
 #include <string.h>
 #include <vector>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 #include <map>
 
 using namespace std;

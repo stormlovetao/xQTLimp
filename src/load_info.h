@@ -9,7 +9,7 @@
 #include <vector>
 #include <map> 
 #include <stdlib.h>
-#include <math.h>
+#include <cmath>
 #include <zlib.h> 
 #include <list>
 #include <time.h>

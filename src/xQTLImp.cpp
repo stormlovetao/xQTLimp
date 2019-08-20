@@ -1,5 +1,6 @@
 #include <pthread.h>
 #include <semaphore.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <getopt.h>
@@ -466,8 +467,11 @@ int main(int argc , char *argv[])
 		/////////////////////////////////////////
 
 		sem_t  bin_sem;    //set Semaphore
-		int res = sem_init(&bin_sem, 0, 0);//init Semaphore
-		if (res != 0)
+		string sem_name = "sem1";
+		sem_t* p_bin_sem  = NULL;
+		p_bin_sem = sem_open(sem_name.c_str() , O_CREAT , 0644 , 0);//init Semaphore
+		bin_sem = (*p_bin_sem);
+		if (p_bin_sem == NULL)
     		{
         		perror("Semaphore initialization failed");
     		}
@@ -505,7 +509,7 @@ int main(int argc , char *argv[])
     		{
         		sem_wait(&bin_sem);
     		}
-    		sem_destroy(&bin_sem);        //release sem
+    		sem_close(&bin_sem);        //release sem
 
 		printf("Imputation on chromosome No.%d finished!\n",chrom);
 		printf("Finalizing output files ... ");
