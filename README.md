@@ -6,7 +6,7 @@ xQTLImp requires as compulsory input data: (1) genotype reference panel (such as
 
 xQTLImp could handle various kinds of molecular traits (not limited to gene expression, DNA methylation or histone acetylation) that can be physically mapped onto the genome. Genomic variants including SNV and small Indel (Insertion/deletion) are both supported. xQTLImp allows users to specify chromosome and MAF of variants, discard certain regions (such as HLA region) and run in multiple threads. Regarding the performance, xQTLImp was designed in speed and memory efficient way, and it took 3~4 hours and <4GB memory for the genome-wide imputation on a single-cell eQTL datasets (see Suppl. Notes in the paper), which could be easily distributed on PC and server.
 
-xQTLImp is implemented in C++ and released under GNU GPL license (version 3). The source code and sample data are freely available for download at current webpage, and can be run on cross platforms with proper C++ environment.
+The source code and sample data are freely available for download at current webpage. The software is released under GNU GPL license (version 3). xQTLImp is implemented in C++ and has been successfully tesed in Linux platform.
 </br>
 
 ##  Building xQTLImp
@@ -157,10 +157,14 @@ During the implementation of xQTLImp, we referenced the following works:
 * van der Wijst, Monique GP, et al. "Single-cell RNA sequencing identifies celltype-specific cis-eQTLs and co-expression QTLs." Nature genetics 50.4 (2018): 493.
 
 
-## Bug shooting
-```bash
-# Mac user might occur the following error during compiling:
-# xcrun: error: invalid active developer path (/Library/Developer/CommandLineTools), missing xcrun at: /Library/Developer/CommandLineTools/usr/bin/xcrun
-# which means you need to install proper C++ compiling environment. Installing XCode can fix this problem, open a Terminal and run this command:
+## Others
+
+* Mac user might occur the following error during compiling:
+```
+xcrun: error: invalid active developer path (/Library/Developer/CommandLineTools), missing xcrun at: /Library/Developer/CommandLineTools/usr/bin/xcrun
+``` 
+which means you need to install proper C++ compiling environment. Installing XCode can fix this problem, open a Terminal and run this command:
+```
 xcode-select --install
 ```
+* The multithreading function has only been tested sucessfully in Linux system, and may not support in MAC OS X.
