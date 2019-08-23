@@ -385,19 +385,19 @@ void print_usage (FILE * stream, int exit_code)
 {
 	fprintf (stream, "Usage: xQTLImp options\n ");
 	fprintf (stream,
-	"-h --help\t\t Display this usage information. \n"
-	"-x --xQTL\t\t The file path of xQTL summary statistics.\n"
-	"-m --molecule\t\t The file path of molecule annotation file.\n"
-	"-v --VCF files\t\t The folder path of genome reference panel, such as 1000G VCF files.\n"
-	"-o --output\t\t The folder path of output results.\n"
-	"-t --num_threads\t Number of threads, 1 in default\n"
-	"-f --MAF_cutoff\t\t Minimum MAF threshold for variants in genome reference panel, 0.01 in default.\n"
-	"-l --lambda_value\t A constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default \n"
-	"-c --chr\t\t Only impute the chromosome user specified\n"
-	"-w --window_size \t Window size N, +-N/2 apart from molecular start pos, 500Kb in default.\n"
-	"-e --exclude\t\t the range don't need imputation, the format is chr:start-end\n"
-	"-b --exclude_file\t record the range don't need imputaion for more than one chromosome,the format is chr start end ...(optional) ... for each line\n"
-	"-s --sort\t\t reorganize the xQTL file,False in default");
+	"-h --help\t\t null, to display this usage. \n"
+	"-x --xQTL\t\t string, the file path of xQTL summary statistics.\n"
+	"-m --molecule\t\t string, the file path of molecule annotation file.\n"
+	"-v --VCF files\t\t string, the folder path of genome reference panel, such as 1000G VCF files.\n"
+	"-o --output\t\t string, the folder path of output results. \n"
+	"-t --num_threads\t int, number of threads, 1 in default.\n"
+	"-f --MAF_cutoff\t\t double, minimum MAF threshold for variants in genome reference panel, 0.01 in default.\n"
+	"-l --lambda_value\t double, a constant value used to added with var-covariance matrix to gurantee the matrix is invertible, 0.1 in default.  \n"
+	"-c --chr\t\t int, specify which chromosome will be imputed.\n"
+	"-w --window_size \t int, Window size N, +-N/2 apart from molecular center pos, in base pair, N=500000bp in default.\n"
+	"-e --exclude\t\t int:int-int, specify a genome region in which variants will be ignored during imputation process.\n"
+	"-b --exclude_file\t string, multiple genome regions user want to mask during imputation process.\n"
+	"-s --sort\t\t sort the xQTL summary statistics by chromosome, molecular_ID, and variant_pos in increasing order prior imputation (required), FALSE in default");
 
 	exit (exit_code);
 }
