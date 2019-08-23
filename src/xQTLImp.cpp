@@ -1,6 +1,4 @@
-#include <pthread.h>
-#include <semaphore.h>
-#include <fcntl.h>
+#include <thread>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <getopt.h>
@@ -8,7 +6,7 @@
 #include "load_info.h"
 #include "comp.h"
 #include "utils.h"
-
+#define MAX_THREAD_NUM 100
 
 struct thread_data{
    map<string,long long int>* p_VcfIndex;
@@ -20,16 +18,15 @@ struct thread_data{
    string out_dir;
    long long int start;
    long long int end;
-   sem_t * bin_sem;
   double maf;
   double lam;
   int window_size;
 };
 
-void *main_process(void *threadarg)
+void *main_process(thread_data *threadarg , int num)
 {
 	struct thread_data *my_data;
-	my_data = (struct thread_data *) threadarg;
+	my_data = threadarg;
    	map<string,long long int>* p_VcfIndex = my_data -> p_VcfIndex;
    	vector<string>* p_VcfFile = my_data -> p_VcfFile;
    	map<string,long long int*> *pos_map = my_data -> pos_map;
@@ -74,7 +71,6 @@ void *main_process(void *threadarg)
 	map<long long int , int> m_typed_snps ;
 	map<long long int , int> *p_m_all_snps = &m_all_snps;
 	map<long long int , int> *p_m_typed_snps = &m_typed_snps;
-
 		ans values;
 		values.last_sigma_it = NULL;
 		values.weight = NULL;
@@ -156,9 +152,6 @@ void *main_process(void *threadarg)
 		free(values.last_sigma_it);
 		m_all_snps.clear();
 		m_typed_snps.clear();
-
-		sem_post(my_data -> bin_sem); //信号量+1
-
 }
 
 int main(int argc , char *argv[])
@@ -466,25 +459,13 @@ int main(int argc , char *argv[])
 		int real_batch = travel_Xqtl(p_files , start ,end ,Xqtl_path ,p_batch_bonder , batch);
 		/////////////////////////////////////////
 
-		sem_t  bin_sem;    //set Semaphore
-		string sem_name = "sem1";
-		sem_t* p_bin_sem  = NULL;
-		p_bin_sem = sem_open(sem_name.c_str() , O_CREAT , 0644 , 0);//init Semaphore
-		bin_sem = (*p_bin_sem);
-		if (p_bin_sem == NULL)
-    		{
-        		perror("Semaphore initialization failed");
-    		}
-
-		pthread_t tids[real_batch];
-		struct thread_data td[real_batch];
-
+		struct thread_data td[MAX_THREAD_NUM];
+		thread tasks[MAX_THREAD_NUM];
 		int chrom = i;
 		printf("Performing xQTL imputation on chromosome No.%d ...\n",chrom);
 		printf("Partitioning into %d threads ... \n" , batch);
 		for(int ii = 0;ii < real_batch;ii++)
 		{
-			td[ii].bin_sem = &bin_sem;
 			td[ii].pos_map = pos_map;
 			td[ii].p_VcfIndex =  p_VcfIndex;
 			td[ii].p_VcfFile =  p_VcfFile;
@@ -497,19 +478,17 @@ int main(int argc , char *argv[])
 			td[ii].maf = maf;
 			td[ii].lam = lam;
 			td[ii].window_size = window_size;
-
-			int ret = pthread_create(&tids[ii], NULL, main_process, (void *)&td[ii]);
-			if (ret != 0)
-        		{
-           		cout << "pthread_create error: error_code=" << ret << endl;
-       			}
+			tasks[ii] = thread(main_process , td ,ii);
 		}
 	// To make sure all sub-threads are finished in each chromosome, because they share the same memory of the reference panel
+
 		for(int j = 0;j < real_batch;j++)
     		{
-        		sem_wait(&bin_sem);
+			if(tasks[j].joinable())
+			{
+				tasks[j].join();
+			}
     		}
-    		sem_close(&bin_sem);        //release sem
 
 		printf("Imputation on chromosome No.%d finished!\n",chrom);
 		printf("Finalizing output files ... ");

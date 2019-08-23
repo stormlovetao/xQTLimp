@@ -7,7 +7,7 @@ LINKOBJ  =  xQTLImp.o utils.o impute.o load_info.o comp.o
 BIN      =  xQTLImp
 
 $(BIN): $(OBJ)
-	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS) -lz -lpthread 
+	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS) -lz -pthread 
 
 utils.o: utils.cpp
 	$(CPP) -c utils.cpp -o utils.o $(CXXFLAGS) -std=c++11
