@@ -397,7 +397,7 @@ void print_usage (FILE * stream, int exit_code)
 	"-w --window_size \t int, Window size N, +-N/2 apart from molecular center pos, in base pair, N=500000bp in default.\n"
 	"-e --exclude\t\t int:int-int, specify a genome region in which variants will be ignored during imputation process.\n"
 	"-b --exclude_file\t string, multiple genome regions user want to mask during imputation process.\n"
-	"-s --sort\t\t boolean, TRUE or FALSE, sort the xQTL summary statistics by chromosome, molecular_ID, and variant_pos in increasing order prior imputation (required), FALSE in default");
+	"-s --sort\t\t boolean, TRUE or FALSE, sort the xQTL summary statistics by chromosome, molecular_ID, and variant_pos in increasing order prior imputation (required), FALSE in default.\n");
 
 	exit (exit_code);
 }
