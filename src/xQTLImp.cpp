@@ -343,14 +343,14 @@ int main(int argc , char *argv[])
 
 	if(SORT == NULL)
 	{
-        sort_flag = "False";
+        	sort_flag = "FALSE";
 	}
 	else
 	{
 		sort_flag = string(SORT);
 	}
 
-    if(!(sort_flag == "True" || sort_flag == "False"))
+    if(!(sort_flag == "TRUE" || sort_flag == "FALSE"))
     {
         cout << "wrong parameter for --sort/-s\n";
         exit(0);
@@ -364,7 +364,7 @@ int main(int argc , char *argv[])
 	 cout << "Done!" << endl;
 	//seperate chrom
 	long long int chrom[1261];
-	if("False" == sort_flag)
+	if("FALSE" == sort_flag)
 	{
 		//do nothing
 	}
@@ -479,7 +479,7 @@ int main(int argc , char *argv[])
 			td[ii].maf = maf;
 			td[ii].lam = lam;
 			td[ii].window_size = window_size;
-			tasks[ii] = thread(main_process , td ,ii);
+			tasks[ii] = thread(main_process , td + ii ,ii);
 		}
 	// To make sure all sub-threads are finished in each chromosome, because they share the same memory of the reference panel
 
@@ -499,7 +499,7 @@ int main(int argc , char *argv[])
 
 
 	cout << "Imputation processes have been Successfully Finished!\n";
-	if("True" == sort_flag)
+	if("TRUE" == sort_flag)
 	{
 		if(chr == -1)
 		{
