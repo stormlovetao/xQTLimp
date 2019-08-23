@@ -464,6 +464,7 @@ int main(int argc , char *argv[])
 		int chrom = i;
 		printf("Performing xQTL imputation on chromosome No.%d ...\n",chrom);
 		printf("Partitioning into %d threads ... \n" , batch);
+		printf("Running imputation ... \n");
 		for(int ii = 0;ii < real_batch;ii++)
 		{
 			td[ii].pos_map = pos_map;
