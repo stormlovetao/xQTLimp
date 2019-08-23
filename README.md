@@ -62,7 +62,7 @@ ENSG00000237613.2	| 34554	| 36081
 
 
 #### 3. xQTL summary statistics
-This file includes summary statistics associated with pairs of variants and molecular traits. The xQTL file should start with a line that contains at least 6 columns (column names can be different) – chromosome , molecular_ID, variant_pos , ref_allele , alt_allele , z_statistics ...(optional columns), followed by lines of data entries . Each field of data entries must be separated by tab or white spaces. Data entries should be **sorted** at least by chromosome number in increasing order, and records with same molecular_ID should be grouped together. We recommend users to sort the xQTL file by chr, molecular_start_pos, and variant_pos in increasing order prior imputation. Users can also specify ```--sort=TRUE``` if their input xQTL file is not sorted properly.</br>
+This file includes summary statistics associated with pairs of variants and molecular traits. The xQTL file should start with a line that contains at least 6 columns (column names can be different) – chromosome , molecular_ID, variant_pos , ref_allele , alt_allele , z_statistics ...(optional columns), followed by lines of data entries . Each field of data entries must be separated by tab or white spaces. Data entries should be **sorted** at least by chromosome number in increasing order, and records with same molecular_ID should be grouped together. We recommend users to sort the xQTL file by chr, molecular_start_pos, molecular_ID, and variant_pos in increasing order prior imputation. Users can also specify ```--sort=TRUE``` if their input xQTL file is not sorted properly.</br>
 ##### Example:
 `chromosome` | `molecular_ID` | `variant_pos` | `ref_allele` | `alt_allele` | `z_statistics`
 --|--|--|--|--|--
@@ -90,6 +90,7 @@ xQTLImp
 -o, --output         folder_path    # string, the folder path of output results. 
 -c, --chr            chromosome     # int, specify which chromosome will be imputed.
 -t, --num_threads    num_threads    # int, number of threads, 1 in default.
+-s, --sort           boolean        # TRUE/FALSE, sort the xQTL summary statistics by chromosome, molecular_ID, and variant_pos in increasing order prior imputation (required), FALSE in default.
 -e, --exclude        chr:start-end  # int:int-int, specify a genome region in which variants will be ignored during imputation process.
 -b, --exclude_file   file_path      # string, multiple genome regions user want to mask during imputation process.
 -f, --MAF_cutoff     MAF_cutoff     # double, minimum MAF threshold for variants in genome reference panel, 0.01 in default.
