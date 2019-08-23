@@ -90,7 +90,7 @@ xQTLImp
 -o, --output         folder_path    # string, the folder path of output results. 
 -c, --chr            chromosome     # int, specify which chromosome will be imputed.
 -t, --num_threads    num_threads    # int, number of threads, 1 in default.
--s, --sort           boolean        # TRUE/FALSE, sort the xQTL summary statistics by chromosome, molecular_ID, and variant_pos in increasing order prior imputation (required), FALSE in default.
+-s, --sort           TRUE/FALSE     # boolean, sort the xQTL summary statistics by chromosome, molecular_ID, and variant_pos in increasing order prior imputation (required), FALSE in default.
 -e, --exclude        chr:start-end  # int:int-int, specify a genome region in which variants will be ignored during imputation process.
 -b, --exclude_file   file_path      # string, multiple genome regions user want to mask during imputation process.
 -f, --MAF_cutoff     MAF_cutoff     # double, minimum MAF threshold for variants in genome reference panel, 0.01 in default.
